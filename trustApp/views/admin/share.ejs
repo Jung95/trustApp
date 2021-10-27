@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko" class="">
+<% include ../header.ejs %>
+
+<body>
+  <div id="app">
+    <% include ../nav/top.ejs %>
+    <% include ../nav/side.ejs %>
+    <section class="is-title-bar">
+      <div class="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
+        <ul>
+          <li>Admin</li>
+          <li>Share</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="is-hero-bar">
+      <div class="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
+        <h1 class="title">
+          Share
+        </h1>
+      </div>
+    </section>
+
+    <section class="section main-section">
+      <div class="card mb-6">
+        <header class="card-header">
+          <p class="card-header-title">
+            <span class="icon"><i class="mdi mdi-ballot"></i></span>
+            share
+          </p>
+        </header>
+        <div class="card-content">
+          <div>
+            <div class="field">
+              <label class="label">Share</label>
+              <div class="field-body">
+                <div class="field">
+                  <div class="control icons-left">
+                    <input class="input" type="number" name="change" id="change" placeholder="Change">
+                    <span class="icon left"><i class="mdi mdi-bitcoin"></i></span>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="control icons-left">
+                    <input class="input" type="number" name="base" id="base" placeholder="Base">
+                    <span class="icon left"><i class="mdi mdi-bitcoin"></i></span>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="control icons-left">
+                    <input type="text" class="input" id="datepicker" name="date" placeholder="">
+                    <span class="icon left"><i class="mdi mdi-calendar"></i></span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="label">Clients</label>
+                  <div class="control">
+                    <div class="select">
+                      <select id="clients">
+                        <option>로딩중</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="control">
+                  <button onClick="transaction()" class="button blue">
+                    저장
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <% include ../footer.ejs %>
+  </div>
+
+
+  <script type="text/javascript" src="/js/main.js?v=1635129225704"></script>
+  <!-- Icons below are for demo only. Feel free to use any icon pack. Docs: https://bulma.io/documentation/elements/icon/ -->
+  <link rel="stylesheet" href="https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css">
+  <script>
+    $("#datepicker").datepicker({
+      dateFormat: 'yy-mm-dd'
+    });
+    $("document").ready(function () {
+      let dt = new Date();
+      var str = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate();
+      $("#datepicker").val(str);
+      setUserList();
+    })
+
+    function setUserList() {
+      jQuery.ajax({
+        type: "GET",
+        url: "/user",
+        dataType: "json",
+        success: function (response) {
+          $("#clients").empty();
+          let list = response['list'];
+          for (var count = 0; count < list.length; count++) {
+            var option = $("<option>" + list[count]['email'] + "</option>");
+            $('#clients').append(option);
+          }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+          alert(xhr.status);
+          alert(thrownError);
+        }
+      });
+    }
+
+    function transaction() {
+      let change = $('#change').val()
+      let base = $('#base').val()
+      let date = $('#datepicker').val()
+      let email = $("#clients option:selected").val()
+      let data = {
+        "value": change,
+        "base": base,
+        "date": date,
+        "email": email
+      }
+      jQuery.ajax({
+        type: "POST",
+        url: "transaction",
+        dataType: "json",
+        data: data,
+        success: function (response) {
+          closeLoadingWithMask()
+          if (response.message) {
+            switch (response.message) {
+              case '1':
+                alert('업데이트완료')
+                break;
+              default:
+                console.log(`Sorry, we are out of ${response.message}.`);
+            }
+          }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+          closeLoadingWithMask()
+          alert(xhr.status);
+          alert(thrownError);
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>

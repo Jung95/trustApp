@@ -1,0 +1,89 @@
+<aside class="aside is-placed-left is-expanded">
+  <div class="aside-tools">
+    <div>
+      J-Crypto <b class="font-black">Trust</b>
+    </div>
+  </div>
+  <div class="menu is-menu-main">
+    <p class="menu-label">요약</p>
+    <ul class="menu-list">
+      <li class="<% if(page=="index"){%>active<%} %>">
+        <a href="/">
+          <span class="icon"><i class="mdi mdi-desktop-mac"></i></span>
+          <span class="menu-item-label">대시보드</span>
+        </a>
+      </li>
+    </ul>
+    <div class="menu is-menu-main">
+      <% if(level=="3") {%> 
+      <p class="menu-label">관리메뉴</p>
+      <ul class="menu-list">
+        <li class="<% if(page=="asset"){%>active<%} %>">
+          <a href="/admin/asset">
+            <span class="icon"><i class="mdi mdi-desktop-mac"></i></span>
+            <span class="menu-item-label">자산기입</span>
+          </a>
+        </li>
+        <li class="<% if(page=="share"){%>active<%} %>">
+          <a href="/admin/share">
+            <span class="icon"><i class="mdi mdi-desktop-mac"></i></span>
+            <span class="menu-item-label">지분관리</span>
+          </a>
+        </li>
+        <li class="<% if(page=="client"){%>active<%} %>">
+          <a href="/admin/client">
+            <span class="icon"><i class="mdi mdi-desktop-mac"></i></span>
+            <span class="menu-item-label">회원관리</span>
+          </a>
+        </li>
+        <li class="<% if(page=="request"){%>active<%} %>">
+          <a href="/admin/client">
+            <span class="icon"><i class="mdi mdi-desktop-mac"></i></span>
+            <span class="menu-item-label">요청관리</span>
+          </a>
+        </li>
+      </ul>
+      <% }%> 
+      <p class="menu-label">자산관리</p>
+      <ul class="menu-list">
+        <li class="<% if(page=="deposit"){%>active<%} %>">
+          <a href="/asset/deposit">
+            <span class="icon"><i class="mdi mdi-table"></i></span>
+            <span class="menu-item-label">추가투자</span>
+          </a>
+        </li>
+        <li class="<% if(page=="withdraw"){%>active<%} %>">
+          <a href="/asset/withdraw">
+            <span class="icon"><i class="mdi mdi-table"></i></span>
+            <span class="menu-item-label">출금신청</span>
+          </a>
+        </li>
+        <li class="<% if(page=="transaction"){%>active<%} %>">
+          <a href="/asset/transaction">
+            <span class="icon"><i class="mdi mdi-table"></i></span>
+            <span class="menu-item-label">입출금내역</span>
+          </a>
+        </li>
+        <li class="<% if(page=="history"){%>active<%} %>">
+          <a href="/asset/history">
+            <span class="icon"><i class="mdi mdi-table"></i></span>
+            <span class="menu-item-label">자산변동내역</span>
+          </a>
+        </li>
+        <p class="menu-label">계정관리</p>
+        <li>
+          <a href="/user/profile">
+            <span class="icon"><i class="mdi mdi-lock"></i></span>
+            <span class="menu-item-label">프로필관리</span>
+          </a>
+        </li>
+        <li>
+          <a href="/auth/signout">
+            <span class="icon"><i class="mdi mdi-lock"></i></span>
+            <span class="menu-item-label">로그아웃</span>
+          </a>
+        </li>
+
+      </ul>
+    </div>
+</aside>

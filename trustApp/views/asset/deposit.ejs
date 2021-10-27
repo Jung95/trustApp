@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko" class="">
+<% include ../header.ejs %>
+
+<body>
+    <div id="app">
+        <% include ../nav/top.ejs %>
+        <% include ../nav/side.ejs %>
+        <section class="is-title-bar">
+            <div class="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
+                <ul>
+                    <li>자산관리</li>
+                    <li>추가투자</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="is-hero-bar">
+            <div class="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
+                <h1 class="title">
+                    추가투자
+                </h1>
+            </div>
+        </section>
+
+        <section class="section main-section">
+            <div class="card mb-6">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        <span class="icon"><i class="mdi mdi-information"></i></span>
+                        추가투자는 클레이튼으로만 가능합니다. <br>
+                        입금주소 : 
+                        <br> 입금 후 수량과 일자를 기입해주시면 24시간내로 처리됩니다.
+                        <br> 입금된 코인의 가치는 입금처리시 가격으로 결정됩니다.
+                    </p>
+                </header>
+                <div class="card-content">
+                    <div>
+                        <div class="field">
+                            <label class="label">추가투자</label>
+                            <div class="field-body">
+                                <p>입금수량</p>
+                                <div class="field">
+                                    <div class="control icons-left">
+                                        <input class="input" type="number" name="asset" id="asset" placeholder="Asset">
+                                        <span class="icon left"><i class="mdi mdi-bitcoin"></i></span>
+                                    </div>
+                                </div>
+                                <p>입금일자</p>
+                                <div class="field">
+                                    <div class="control icons-left">
+                                        <input type="text" class="input" id="datepicker" name="date" placeholder="">
+                                        <span class="icon left"><i class="mdi mdi-calendar"></i></span>
+                                    </div>
+                                </div>
+                                <div class="control">
+                                    <button onClick="assetUpdate()" class="button blue">
+                                        신청
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <% include ../footer.ejs %>
+    </div>
+
+
+    <script type="text/javascript" src="/js/main.js?v=1635129225704"></script>
+    <!-- Icons below are for demo only. Feel free to use any icon pack. Docs: https://bulma.io/documentation/elements/icon/ -->
+    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css">
+    <script>
+        $("#datepicker").datepicker({
+            dateFormat: 'yy-mm-dd'
+        });
+        $("document").ready(function () {
+            let dt = new Date();
+            var str = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate();
+            $("#datepicker").val(str)
+        })
+
+        function assetUpdate() {
+            let asset = $('#asset').val()
+            let date = $('#datepicker').val()
+            let data = {
+                "asset": asset,
+                "date": date
+            }
+            LoadingWithMask()
+            jQuery.ajax({
+                type: "POST",
+                url: "asset",
+                dataType: "json",
+                data: data,
+                success: function (response) {
+                    closeLoadingWithMask()
+                    if (response.message) {
+                        switch (response.message) {
+                            case '1':
+                                alert('업데이트완료')
+                                break;
+                            default:
+                                console.log(`Sorry, we are out of ${response.message}.`);
+                        }
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    closeLoadingWithMask()
+                    alert(xhr.status);
+                    alert(thrownError);
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

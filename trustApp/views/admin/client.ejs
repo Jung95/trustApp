@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko" class="">
+<% include ../header.ejs %>
+
+<body>
+    <div id="app">
+        <% include ../nav/top.ejs %>
+        <% include ../nav/side.ejs %>
+        <section class="is-title-bar">
+            <div class="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
+                <ul>
+                    <li>Admin</li>
+                    <li>Clients</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="is-hero-bar">
+            <div class="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
+                <h1 class="title">
+                    Clients
+                </h1>
+            </div>
+        </section>
+
+        <section class="section main-section">
+            <div class="card mb-6">
+                <div class="card-content">
+                    <div>
+                        <div class="field">
+                            <div class="card has-table">
+                                <header class="card-header">
+                                    <p class="card-header-title">
+                                        <span class="icon"><i class="mdi mdi-account-multiple"></i></span>
+                                        Clients
+                                    </p>
+                                    <a href="#" class="card-header-icon">
+                                        <span class="icon"><i class="mdi mdi-reload"></i></span>
+                                    </a>
+                                </header>
+                                <div class="card-content">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th>이름</th>
+                                                <th>수익률</th>
+                                                <th>자산</th>
+                                                <th>투자원금</th>
+                                                <th>지분</th>
+                                                <th>수수료</th>
+                                                <th>정산완료금</th>
+                                                <th>가입일</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="image-cell">
+                                                    <div class="image">
+                                                        <img src="https://avatars.dicebear.com/v2/initials/홍.svg"
+                                                            class="rounded-full">
+                                                    </div>
+                                                </td>
+                                                <td data-label="Name">홍길동</td>
+                                                <td data-label="Company">비공개</td>
+                                                <td data-label="Company">비공개</td>
+                                                <td data-label="Company">비공개</td>
+                                                <td data-label="Company">비공개</td>
+                                                <td data-label="City">1,000,000 ₩</td>
+                                                <td data-label="Progress" class="progress-cell">
+                                                    3%
+                                                </td>
+                                                <td data-label="Created">
+                                                    <small class="text-gray-500" title="Oct 25, 2021">Oct 25,
+                                                        2021</small>
+                                                </td>
+                                                <td class="actions-cell">
+                                                    <div class="buttons right nowrap">
+                                                        <button class="button small green --jb-modal"
+                                                            data-target="sample-modal-2" type="button">
+                                                            <span class="icon"><i class="mdi mdi-eye"></i></span>
+                                                        </button>
+                                                        <button class="button small red --jb-modal"
+                                                            data-target="sample-modal" type="button">
+                                                            <span class="icon"><i class="mdi mdi-trash-can"></i></span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <!-- not use yet
+                                <div class="table-pagination">
+                                  <div class="flex items-center justify-between">
+                                    <div class="buttons">
+                                      <button type="button" class="button active">1</button>
+                                      <button type="button" class="button">2</button>
+                                      <button type="button" class="button">3</button>
+                                    </div>
+                                    <small>Page 1 of 3</small>
+                                  </div>
+                                </div>
+                                -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <% include ../footer.ejs %>
+    </div>
+
+
+    <script type="text/javascript" src="/js/main.js?v=1635129225704"></script>
+    <!-- Icons below are for demo only. Feel free to use any icon pack. Docs: https://bulma.io/documentation/elements/icon/ -->
+    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css">
+    <script>
+        $("#datepicker").datepicker({
+            dateFormat: 'yy-mm-dd'
+        });
+        $("document").ready(function () {
+            let dt = new Date();
+            var str = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate();
+            $("#datepicker").val(str)
+        })
+
+        function assetUpdate() {
+            let asset = $('#asset').val()
+            let date = $('#datepicker').val()
+            let data = {
+                "asset": asset,
+                "date": date
+            }
+            LoadingWithMask()
+            jQuery.ajax({
+                type: "POST",
+                url: "asset",
+                dataType: "json",
+                data: data,
+                success: function (response) {
+                    closeLoadingWithMask()
+                    if (response.message) {
+                        switch (response.message) {
+                            case '1':
+                                alert('업데이트완료')
+                                break;
+                            default:
+                                console.log(`Sorry, we are out of ${response.message}.`);
+                        }
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    closeLoadingWithMask()
+                    alert(xhr.status);
+                    alert(thrownError);
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

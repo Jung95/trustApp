@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko" class="">
+<% include ../header.ejs %>
+
+<body>
+    <div id="app">
+        <% include ../nav/top.ejs %>
+        <% include ../nav/side.ejs %>
+        <section class="is-title-bar">
+            <div class="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
+                <ul>
+                    <li>Admin</li>
+                    <li>Asset</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="is-hero-bar">
+            <div class="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
+                <h1 class="title">
+                    Asset
+                </h1>
+            </div>
+        </section>
+
+        <section class="section main-section">
+            <div class="card mb-6">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        <span class="icon"><i class="mdi mdi-ballot"></i></span>
+                        Asset
+                    </p>
+                </header>
+                <div class="card-content">
+                    <div>
+                        <div class="field">
+                            <label class="label">Asset</label>
+                            <div class="field-body">
+                                <div class="field">
+                                    <div class="control icons-left">
+                                        <input class="input" type="number" name="asset" id="asset" placeholder="Asset">
+                                        <span class="icon left"><i class="mdi mdi-bitcoin"></i></span>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <div class="control icons-left">
+                                        <input type="text" class="input" id="datepicker" name="date" placeholder="">
+                                        <span class="icon left"><i class="mdi mdi-calendar"></i></span>
+                                    </div>
+                                </div>
+                                <div class="control">
+                                    <button onClick="assetUpdate()" class="button blue">
+                                        저장
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <% include ../footer.ejs %>
+    </div>
+
+
+    <script type="text/javascript" src="/js/main.js?v=1635129225704"></script>
+    <!-- Icons below are for demo only. Feel free to use any icon pack. Docs: https://bulma.io/documentation/elements/icon/ -->
+    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css">
+    <script>
+        $("#datepicker").datepicker({
+            dateFormat: 'yy-mm-dd'
+        });
+        $("document").ready(function () {
+            let dt = new Date();
+            var str = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate();
+            $("#datepicker").val(str)
+        })
+
+        function assetUpdate() {
+            let asset = $('#asset').val()
+            let date = $('#datepicker').val()
+            let data = {
+                "asset": asset,
+                "date": date
+            }
+            LoadingWithMask()
+            jQuery.ajax({
+                type: "POST",
+                url: "asset",
+                dataType: "json",
+                data: data,
+                success: function (response) {
+                    closeLoadingWithMask()
+                    if (response.message) {
+                        switch (response.message) {
+                            case '1':
+                                alert('업데이트완료')
+                                break;
+                            default:
+                                console.log(`Sorry, we are out of ${response.message}.`);
+                        }
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    closeLoadingWithMask()
+                    alert(xhr.status);
+                    alert(thrownError);
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

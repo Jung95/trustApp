@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" class="form-screen">
+<% include ../header.ejs %>
+
+<body>
+  <div id="app">
+
+    <section class="section main-section">
+      <div class="card">
+        <header class="card-header">
+          <p class="card-header-title">
+            <span class="icon"><i class="mdi mdi-lock"></i></span>
+            로그인
+          </p>
+        </header>
+        <div class="card-content">
+          <div>
+            <div class="field spaced">
+              <label class="label">이메일</label>
+              <div class="control icons-left">
+                <input class="input" type="text" id="email" name="email" placeholder="user@example.com"
+                  autocomplete="email" required>
+                <span class="icon is-small left"><i class="mdi mdi-account"></i></span>
+              </div>
+            </div>
+
+            <div class="field spaced">
+              <label class="label">비밀번호</label>
+              <p class="control icons-left">
+                <input class="input" type="password" id="password" name="password" placeholder="Password"
+                  autocomplete="current-password" minlength="8" required>
+                <span class="icon is-small left"><i class="mdi mdi-asterisk"></i></span>
+              </p>
+            </div>
+            <hr>
+
+            <div class="field grouped">
+              <div class="control">
+                <button onClick="signin()" class="button blue">
+                  로그인
+                </button>
+              </div>
+              <div class="control">
+                <a href="signup" class="button green">
+                  회원가입
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+
+  </div>
+
+
+  <script type="text/javascript" src="/js/main.js?v=1635129225704"></script>
+  <script>
+    $(document).ready(function () {
+      $.removeCookie('user', {
+        path: '/'
+      }); // => true
+    });
+
+    function signin() {
+      let email = $('#email').val()
+      let password = $('#password').val()
+      let data = {
+        "email": email,
+        "password": password
+      }
+      LoadingWithMask()
+      jQuery.ajax({
+        type: "POST",
+        url: "signin",
+        dataType: "json",
+        data: data,
+        success: function (response) {
+          closeLoadingWithMask()
+          if (response.error) {
+            switch (response.error) {
+              case '0':
+                alert('아이디와 비밀번호를 입력해주세요.')
+                break;
+              case '1':
+                alert('아이디와 비밀번호가 일치하지 않습니다.')
+                break;
+              case '2':
+                alert('아이디와 비밀번호가 일치하지 않습니다.')
+                break;
+              case '3':
+                alert('아직 미승인된 아이디입니다.')
+                break;
+                Î
+              default:
+                console.log(`Sorry, we are out of ${response.error}.`);
+            }
+          } else {
+            $.cookie('user', response.token, {
+              expires: 1,
+              path: '/'
+            });
+            window.location = "/"
+          }
+
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+          closeLoadingWithMask()
+          alert(xhr.status);
+          alert(thrownError);
+        }
+      });
+    }
+  </script>
+  
+  <link rel="stylesheet" href="https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css">
+
+</body>
+
+</html>
