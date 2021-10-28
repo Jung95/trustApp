@@ -3,8 +3,12 @@ const Transaction = require("../models/transaction");
 const Share = require("../models/share");
 const User = require("../models/user");
 var dotenv = require('dotenv');
+const jwt = require("jsonwebtoken"); // jsonwebtoken 라이브러리
 
 dotenv.config()
+const {
+    TOKEN_KEY
+} = process.env;
 
 const transaction = async (req, res, next) => {
     try {
@@ -56,8 +60,8 @@ const transaction = async (req, res, next) => {
                     principal = principal + fValue;
                     calculation = calculation + fValue;
                 } else { //withdraw
-                    principal = (1 - fValue / (fBase * share)) * principal;
-                    calculation = (1 - fValue / (fBase * share)) * calculation;
+                    principal = (1 + fValue / (fBase * share)) * principal;
+                    calculation = (1 + fValue / (fBase * share)) * calculation;
                 }
             } else {//not transaction sender
                 share = (share * fBase) / (fValue + fBase);
@@ -84,25 +88,6 @@ const transaction = async (req, res, next) => {
         res.status(201).json({
             message: "1"
         });
-    } catch (err) {}
-}
-
-const assetList = async (req, res, next) => {
-    try {
-        const page = await parseInt(req.params.page);
-        const limit = 30;
-        if (page == 0) { //모든 데이터 일괄 
-            const list = await Asset.find().where("isUsed").equals(true).sort("-date");
-            res.status(201).json({
-                list
-            }); // list 생성되었다는 메세지를 응답으로 보낸다.
-        } else {
-            const list = await Asset.find().where("isUsed").equals(true).sort("-date").skip(((page - 1) * limit)).limit(limit);
-            res.status(201).json({
-                list
-            }); // list 생성되었다는 메세지를 응답으로 보낸다.
-        }
-
     } catch (err) {}
 }
 
@@ -151,8 +136,37 @@ const assetUpdate = async (req, res, next) => { // signUp 하는 로직
     }
 };
 
+
+const clientShare = async (req, res, next) => {
+    try {
+        const {
+            token
+        } = req.query;
+       
+        const decodedToken = jwt.verify(token, TOKEN_KEY);
+        const {
+            _id
+        } = decodedToken;
+        console.log(_id)
+        const user = await User.findOne({
+            _id
+          }); 
+          console.log(user)
+          if(user['level']!=='3'){
+            res.status(201).json({
+            });
+          }else{
+            const list = await Share.find().where("last").equals(true).sort("-share");
+            res.status(201).json({
+                list
+            }); // list 생성되었다는 메세지를 응답으로 보낸다.
+          }
+
+    } catch (err) {}
+}
+
 module.exports = {
     assetUpdate,
-    assetList,
-    transaction
+    transaction,
+    clientShare
 }; // signUp 함수를 module 로 내보낸다.

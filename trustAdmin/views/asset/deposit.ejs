@@ -10,7 +10,7 @@
             <div class="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
                 <ul>
                     <li>자산관리</li>
-                    <li>추가투자</li>
+                    <li>입금신청</li>
                 </ul>
             </div>
         </section>
@@ -18,7 +18,7 @@
         <section class="is-hero-bar">
             <div class="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
                 <h1 class="title">
-                    추가투자
+                    입금신청
                 </h1>
             </div>
         </section>
@@ -28,22 +28,26 @@
                 <header class="card-header">
                     <p class="card-header-title">
                         <span class="icon"><i class="mdi mdi-information"></i></span>
-                        추가투자는 클레이튼으로만 가능합니다. <br>
-                        입금주소 : 
-                        <br> 입금 후 수량과 일자를 기입해주시면 24시간내로 처리됩니다.
-                        <br> 입금된 코인의 가치는 입금처리시 가격으로 결정됩니다.
+                        클레이튼 또는 계좌이체로만 가능합니다.
+                        <br> 입금 후 수량과 일자를 기입해주시면 48시간내로 처리됩니다.
+                        <br> 계좌이체 시 거래소에서 클레이튼을 구매 후 신탁지갑으로 송금됩니다.
+                        <br> 따라서 거래수수료 및 송금수수료를 제외한 클레이튼개수가 입금됩니다.
+                        <br> 입금된 클레이튼의 가치는 입금처리시 가격으로 결정됩니다.
+                        <br> 계좌이체 입금주소 :
+                        <br> 클레이튼 입금주소 :
+
                     </p>
                 </header>
                 <div class="card-content">
                     <div>
                         <div class="field">
-                            <label class="label">추가투자</label>
+                            <label class="label">입금신청</label>
                             <div class="field-body">
-                                <p>입금수량</p>
+                                <p>입금수량/액</p>
                                 <div class="field">
                                     <div class="control icons-left">
-                                        <input class="input" type="number" name="asset" id="asset" placeholder="Asset">
-                                        <span class="icon left"><i class="mdi mdi-bitcoin"></i></span>
+                                        <input class="input" type="number" name="value" id="value" placeholder="입금수량">
+                                        <span class="icon left"><i class="mdi mdi-cash-plus"></i></span>
                                     </div>
                                 </div>
                                 <p>입금일자</p>
@@ -54,7 +58,7 @@
                                     </div>
                                 </div>
                                 <div class="control">
-                                    <button onClick="assetUpdate()" class="button blue">
+                                    <button onClick="deposit()" class="button blue">
                                         신청
                                     </button>
                                 </div>
@@ -63,58 +67,183 @@
                     </div>
                 </div>
             </div>
+            <div class="card has-table">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        <span class="icon"><i class="mdi mdi-account-multiple"></i></span>
+                        투자신청목록
+                    </p>
+                    <a href="#" class="card-header-icon">
+                        <span class="icon"><i class="mdi mdi-reload"></i></span>
+                    </a>
+                </header>
+                <div class="card-content" id="progressTable">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>일자</th>
+                                <th>금액</th>
+                                <th>진행상황</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="rows">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </section>
 
         <% include ../footer.ejs %>
-    </div>
 
 
-    <script type="text/javascript" src="/js/main.js?v=1635129225704"></script>
-    <!-- Icons below are for demo only. Feel free to use any icon pack. Docs: https://bulma.io/documentation/elements/icon/ -->
-    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css">
-    <script>
-        $("#datepicker").datepicker({
-            dateFormat: 'yy-mm-dd'
-        });
-        $("document").ready(function () {
-            let dt = new Date();
-            var str = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate();
-            $("#datepicker").val(str)
-        })
-
-        function assetUpdate() {
-            let asset = $('#asset').val()
-            let date = $('#datepicker').val()
-            let data = {
-                "asset": asset,
-                "date": date
-            }
-            LoadingWithMask()
-            jQuery.ajax({
-                type: "POST",
-                url: "asset",
-                dataType: "json",
-                data: data,
-                success: function (response) {
-                    closeLoadingWithMask()
-                    if (response.message) {
-                        switch (response.message) {
-                            case '1':
-                                alert('업데이트완료')
-                                break;
-                            default:
-                                console.log(`Sorry, we are out of ${response.message}.`);
-                        }
-                    }
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    closeLoadingWithMask()
-                    alert(xhr.status);
-                    alert(thrownError);
-                }
+        <script type="text/javascript" src="/js/main.js?v=1635129225704"></script>
+        <!-- Icons below are for demo only. Feel free to use any icon pack. Docs: https://bulma.io/documentation/elements/icon/ -->
+        <link rel="stylesheet" href="https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css">
+        <script>
+            $("#datepicker").datepicker({
+                dateFormat: 'yy-mm-dd'
             });
-        }
-    </script>
+            $("document").ready(function () {
+                let dt = new Date();
+                var str = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate();
+                $("#datepicker").val(str);
+                $("#progressTable").hide();
+                getList();
+            })
+
+            function makeRow(value, date, progress, id) {
+                let textProgress;
+                switch (progress) {
+                    case 0:
+                        textProgress = "접수완료"
+                        break;
+                    case 1:
+                        textProgress = "진행중"
+                        break;
+                    case 2:
+                        textProgress = "보류중"
+                        break;
+                    case 3:
+                        textProgress = "거절됨"
+                        break;
+                    default:
+                        textProgress = "확인중";
+                }
+                let result = ""
+                result += "<tr>";
+                result += "<td data-label=\"금액\">" + date + "</td>"
+                result += "<td data-label=\"일자\">" + value + "₩</td>"
+                result += "<td data-label=\"진행상황\">" + textProgress + "</td>"
+                result += "<td data-label=\"변경\" class=\"actions-cell\">"
+                if (progress == 0) {
+
+                    result += "<div class=\"buttons right nowrap\">"
+                    result +=
+                        "<button class=\"button small red --jb-modal\" data-target=\"sample-modal\" onClick=\"deleteRequest('" +
+                        id + "')\" type=\"button\">"
+                    result += "<span class=\"icon\"><i class=\"mdi mdi-trash-can\"></i></span>"
+                    result += "</button>"
+                    result += "</div>"
+
+                }
+                result += "</td>"
+                result += "</tr>"
+                return result;
+            }
+
+            function getList() {
+                let token = $.cookie('user');
+                let data = {
+                    "token": token
+                }
+                jQuery.ajax({
+                    type: "GET",
+                    url: "deposit/progress",
+                    dataType: "json",
+                    data: data,
+                    success: function (response) {
+                        response['list'].forEach(deposit => {
+                            $("#rows").append(makeRow(deposit['value'], deposit['date'], deposit[
+                                'progress'], deposit['_id']))
+                        });
+                        $("#progressTable").show();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(xhr.status);
+                        alert(thrownError);
+                    }
+                });
+            }
+
+            function deposit() {
+                let value = $('#value').val()
+                let date = $('#datepicker').val()
+                let token = $.cookie('user');
+                let data = {
+                    "value": value,
+                    "date": date,
+                    "token": token
+                }
+                LoadingWithMask()
+                jQuery.ajax({
+                    type: "POST",
+                    url: "deposit",
+                    dataType: "json",
+                    data: data,
+                    success: function (response) {
+                        closeLoadingWithMask()
+                        if (response.message) {
+                            switch (response.message) {
+                                case '1':
+                                    alert('신청완료')
+                                    break;
+                                default:
+                                    console.log(`Sorry, we are out of ${response.message}.`);
+                            }
+                        }
+                        $("#rows").empty();
+                        getList();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        closeLoadingWithMask()
+                        alert(xhr.status);
+                        alert(thrownError);
+                    }
+                });
+            }
+
+            function deleteRequest(requestId) {
+                let token = $.cookie('user');
+                let data = {
+                    "requestId": requestId,
+                    "token": token,
+                }
+                jQuery.ajax({
+                    type: "DELETE",
+                    url: "request",
+                    dataType: "json",
+                    data: data,
+                    success: function (response) {
+                        if (response.message) {
+                            switch (response.message) {
+                                case '1':
+                                    alert('삭제완료')
+                                    break;
+                                default:
+                                    console.log(`Sorry, we are out of ${response.message}.`);
+                            }
+                        }
+                        $("#rows").empty();
+                        getList();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(xhr.status);
+                        alert(thrownError);
+                    }
+                });
+            }
+        </script>
 </body>
 
 </html>

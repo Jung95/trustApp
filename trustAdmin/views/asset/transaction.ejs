@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko" class="">
+<% include ../header.ejs %>
+
+<body>
+    <div id="app">
+        <% include ../nav/top.ejs %>
+        <% include ../nav/side.ejs %>
+        <section class="is-title-bar">
+            <div class="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
+                <ul>
+                    <li>자산관리</li>
+                    <li>입출금내역</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="is-hero-bar">
+            <div class="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
+                <h1 class="title">
+                    입출금내역
+                </h1>
+            </div>
+        </section>
+
+        <section class="section main-section">
+            <div class="card mb-6">
+                <div class="card has-table">
+                    <header class="card-header">
+                        <p class="card-header-title">
+                            <span class="icon"><i class="mdi mdi-account-multiple"></i></span>
+                            입출금목록
+                        </p>
+                        <a href="#" class="card-header-icon">
+                            <span class="icon"><i class="mdi mdi-reload"></i></span>
+                        </a>
+                    </header>
+                    <div class="card-content" id="progressTable">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>일자</th>
+                                    <th>종류</th>
+                                    <th>금액</th>
+                                    <th>은행</th>
+                                    <th>계좌번호</th>
+                                    <th>진행상황</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="rows">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+        </section>
+
+        <% include ../footer.ejs %>
+    </div>
+
+
+    <script type="text/javascript" src="/js/main.js?v=1635129225704"></script>
+    <!-- Icons below are for demo only. Feel free to use any icon pack. Docs: https://bulma.io/documentation/elements/icon/ -->
+    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css">
+    <script>
+        $("#datepicker").datepicker({
+            dateFormat: 'yy-mm-dd'
+        });
+        $("document").ready(function () {
+            let dt = new Date();
+            var str = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate();
+            $("#datepicker").val(str)
+            $("#progressTable").hide();
+            getList();
+        })
+
+        function makeRow(value, date, progress, id, bank, account, type) {
+            let korType;
+            console.log(type)
+            switch (type) {
+                case "deposit":
+                    korType = "입금"
+                    break;
+                case "withdraw":
+                    korType = "출금"
+                    break;
+            }
+            let textProgress;
+            switch (progress) {
+                case 0:
+                    textProgress = "접수완료"
+                    break;
+                case 1:
+                    textProgress = "진행중"
+                    break;
+                case 2:
+                    textProgress = "보류중"
+                    break;
+                case 3:
+                    textProgress = "거절됨"
+                    break;
+                default:
+                    textProgress = "확인중";
+            }
+            let result = ""
+            result += "<tr>";
+            result += "<td data-label=\"금액\">" + date + "</td>"
+            result += "<td data-label=\"금액\">" + korType + "</td>"
+            result += "<td data-label=\"일자\">" + value + "₩</td>"
+            result += "<td data-label=\"은행\">" + bank + "</td>"
+            result += "<td data-label=\"계좌번호\">" + account + "</td>"
+            result += "<td data-label=\"진행상황\">" + textProgress + "</td>"
+            result += "<td data-label=\"변경\" class=\"actions-cell\">"
+            if (progress == 0) {
+
+                result += "<div class=\"buttons right nowrap\">"
+                result +=
+                "<button class=\"button small red --jb-modal\" data-target=\"sample-modal\" onClick=\"deleteRequest('"+id+"')\" type=\"button\">"
+                result += "<span class=\"icon\"><i class=\"mdi mdi-trash-can\"></i></span>"
+                result += "</button>"
+                result += "</div>"
+
+            }
+            result += "</td>"
+            result += "</tr>"
+            return result;
+        }
+
+        function getList() {
+            let token = $.cookie('user');
+            let data = {
+                "token": token
+            }
+            jQuery.ajax({
+                type: "GET",
+                url: "transaction/list",
+                dataType: "json",
+                data: data,
+                success: function (response) {
+                    response['list'].forEach(deposit => {
+                        $("#rows").append(makeRow(deposit['value'], deposit['date'], deposit[
+                            'progress'], deposit['_id'], deposit['bank'], deposit[
+                            'account'], deposit['type']))
+                    });
+                    $("#progressTable").show();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(xhr.status);
+                    alert(thrownError);
+                }
+            });
+        }
+
+        function withdraw() {
+            let value = $('#value').val()
+            let date = $('#datepicker').val()
+            let account = $('#account').val()
+            let bank = $('#bank').val()
+            let token = $.cookie('user');
+            let data = {
+                "value": value,
+                "date": date,
+                "bank": bank,
+                "account": account,
+                "token": token
+            }
+            LoadingWithMask()
+            jQuery.ajax({
+                type: "POST",
+                url: "withdraw",
+                dataType: "json",
+                data: data,
+                success: function (response) {
+                    closeLoadingWithMask()
+                    if (response.message) {
+                        switch (response.message) {
+                            case '1':
+                                alert('신청완료')
+                                break;
+                            default:
+                                console.log(`Sorry, we are out of ${response.message}.`);
+                        }
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    closeLoadingWithMask()
+                    alert(xhr.status);
+                    alert(thrownError);
+                }
+            });
+        }
+        function deleteRequest(requestId) {
+                let token = $.cookie('user');
+                let data = {
+                    "requestId": requestId,
+                    "token": token,
+                }
+                jQuery.ajax({
+                    type: "DELETE",
+                    url: "request",
+                    dataType: "json",
+                    data: data,
+                    success: function (response) {
+                        if (response.message) {
+                            switch (response.message) {
+                                case '1':
+                                    alert('삭제완료')
+                                    break;
+                                default:
+                                    console.log(`Sorry, we are out of ${response.message}.`);
+                            }
+                        }
+                        $("#rows").empty();
+                        getList();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(xhr.status);
+                        alert(thrownError);
+                    }
+                });
+            }
+    </script>
+</body>
+
+</html>

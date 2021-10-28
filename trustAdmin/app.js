@@ -15,7 +15,7 @@ var userRouter = require('./routes/user');
 var assetRouter = require('./routes/asset');
 var app = express();
 
-const { MONGODB_PW, SECRET_KEY } = process.env;
+const { MONGODB_PW, TOKEN_KEY } = process.env;
 
 // CONNECT TO MONGODB SERVER
 const uri = "mongodb+srv://root:"+MONGODB_PW+"@cluster0.7a0ac.mongodb.net/trustAPP?retryWrites=true&w=majority";

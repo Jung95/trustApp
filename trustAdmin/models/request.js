@@ -24,7 +24,21 @@ const requestSchema = new Schema({ // 1.
     },
     progress: {
         type: Number,
-        default: 0
+        default: 0 
+        /*
+        0:접수완료
+        1:진행중
+        2:보류중
+        3:거절됨
+        4:완료
+        */
+    },
+    date: {
+        type: String,
+        required: true
+    },
+    type: {
+        type: String,
     }
 }, {
     collection: 'requests'

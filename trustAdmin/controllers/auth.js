@@ -5,7 +5,7 @@ var dotenv = require('dotenv');
 
 dotenv.config()
 
-const { SECRET_KEY } = process.env;
+const { TOKEN_KEY } = process.env;
 const createUserData = async (userInput) => { // user를 객체화하고 Database에 저장하는 함수
     const user = await userWithEncodePassword(userInput); // input 을 인자로 넘겨주고, 암호화된 정보가 담긴 객체를 결과로 받는다. 
     return user.save(); // mongoose 의 save() 메소드를 통해서 Users 콜렉션에 도큐먼트(객체) 저장하기
@@ -65,7 +65,7 @@ const signUp = async (req, res, next) => { // signUp 하는 로직
 const createToken = (userId) => {
     const token = jwt.sign({
         _id: userId.toString()
-    }, SECRET_KEY); // 인자로 넘겨받은 user 도큐먼트(객체)의 고유 id로 토큰을 만든다. 두번째 인자값은 salt 값으로 보안과 관련된 값이므로, 보통 dotenv 로 환경변수에 넣어서 사용하게 된다.
+    }, TOKEN_KEY); // 인자로 넘겨받은 user 도큐먼트(객체)의 고유 id로 토큰을 만든다. 두번째 인자값은 salt 값으로 보안과 관련된 값이므로, 보통 dotenv 로 환경변수에 넣어서 사용하게 된다.
     return token;
 };
 

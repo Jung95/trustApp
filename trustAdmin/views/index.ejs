@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" class="">
 <% include header.ejs %>
+
 <body>
   <div id="app">
     <% include nav/top.ejs %>
@@ -22,11 +23,11 @@
                 <h3>
                   수익금
                 </h3>
-                <h1>
-                  1000,000 ₩
+                <h1 id="profit">
+                  로딩중
                 </h1>
               </div>
-              <span class="icon widget-icon text-green-500"><i class="mdi mdi-account-multiple mdi-48px"></i></span>
+              <span class="icon widget-icon text-black-500"><i class="mdi mdi-bank-plus mdi-48px"></i></span>
             </div>
           </div>
         </div>
@@ -37,11 +38,11 @@
                 <h3>
                   수익률
                 </h3>
-                <h1>
-                  256%
+                <h1 id="rate">
+                  로딩중
                 </h1>
               </div>
-              <span class="icon widget-icon text-blue-500"><i class="mdi mdi-cart-outline mdi-48px"></i></span>
+              <span class="icon widget-icon text-red-500"><i class="mdi mdi-finance mdi-48px"></i></span>
             </div>
           </div>
         </div>
@@ -53,16 +54,16 @@
                 <h3>
                   투자원금
                 </h3>
-                <h1>
-                  1000,000 ₩
+                <h1 id="principal">
+                  로딩중
                 </h1>
               </div>
-              <span class="icon widget-icon text-red-500"><i class="mdi mdi-finance mdi-48px"></i></span>
+              <span class="icon widget-icon text-green-500"><i class="mdi mdi-cash mdi-48px"></i></span>
             </div>
           </div>
         </div>
       </div>
-
+      <!--
       <div class="card mb-6">
         <header class="card-header">
           <p class="card-header-title">
@@ -89,8 +90,9 @@
             </div>
           </div>
         </div>
+       
       </div>
-
+  -->
       <div class="card has-table">
         <header class="card-header">
           <p class="card-header-title">
@@ -111,38 +113,10 @@
                 <th>자산</th>
                 <th>투자원금</th>
                 <th>지분</th>
-                <th>가입일</th>
-                <th></th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td class="image-cell">
-                  <div class="image">
-                    <img src="https://avatars.dicebear.com/v2/initials/홍.svg" class="rounded-full">
-                  </div>
-                </td>
-                <td data-label="Name">홍길동</td>
-                <td data-label="Company">비공개</td>
-                <td data-label="Company">비공개</td>
-                <td data-label="City">1,000,000 ₩</td>
-                <td data-label="Progress" class="progress-cell">
-                  3%
-                </td>
-                <td data-label="Created">
-                  <small class="text-gray-500" title="Oct 25, 2021">Oct 25, 2021</small>
-                </td>
-                <td class="actions-cell">
-                  <div class="buttons right nowrap">
-                    <button class="button small green --jb-modal" data-target="sample-modal-2" type="button">
-                      <span class="icon"><i class="mdi mdi-eye"></i></span>
-                    </button>
-                    <button class="button small red --jb-modal" data-target="sample-modal" type="button">
-                      <span class="icon"><i class="mdi mdi-trash-can"></i></span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
+            <tbody id="rows">
+
             </tbody>
           </table>
           <!-- not use yet
@@ -200,11 +174,139 @@
   </div>
 
   <!-- Scripts below are for demo only -->
-  <script type="text/javascript" src="js/main.min.js?v=1635129225704"></script>
+  <script type="text/javascript" src="js/main.js?v=1635129225704"></script>
 
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
-  <script type="text/javascript" src="js/chart.sample.js"></script>
+  <!--
+    <script type="text/javascript" src="js/chart.sample.js"></script>
+  -->
+  <script>
+    $("document").ready(async function () {
+      let share = await getMyAsset();
+      let asset = await getUsedAsset();
+      share = share['share'];
+      asset = asset['asset']['asset'];
+      let profit = (asset * share['share'] - share['principal'])
+      let rate = ((profit / share['principal']) * 100).toLocaleString('ko-KR')
+      let principal = share['principal'].toLocaleString('ko-KR', {
+        maximumFractionDigits: 0
+      })
+      console.log(principal)
+      $("#profit").text(profit.toLocaleString('ko-KR', {
+        maximumFractionDigits: 0
+      }) + "₩")
+      $("#rate").text(rate + "%")
+      $("#principal").text(principal + "₩")
+      let clientAsset = await getClientAsset();
+      clientAsset['list'].forEach(client => {
+        $("#rows").append(makeRow(client['email'], asset, client['principal'], client['share']))
+      });
+    })
 
+    function makeRow(nickname, asset, principal, share) {
+      let profit;
+      let capital;
+      console.log(share)
+      if (principal == null) {
+        principal = "비공개"
+        profit = "비공개"
+      } else {
+        profit = (((share * asset)/principal-1)*100).toLocaleString("ko-KR", {
+          maximumFractionDigits: 2
+        }) + "%"
+        principal = principal.toLocaleString("ko-KR", {
+          maximumFractionDigits: 0
+        }) + "₩"
+
+      }
+      if (share == null) {
+        share = "비공개"
+        capital = "비공개"
+        profit = "비공개"
+      } else {
+        capital = (share * asset).toLocaleString("ko-KR", {
+          maximumFractionDigits: 0
+        }) + "₩"
+        share = (share * 100).toFixed(3) + "%"
+
+      }
+      let result = ""
+      result += "<tr>";
+      result += " <td class=\"image-cell\">"
+      result += "<div class=\"image\">"
+      result += "<img src=\"https://avatars.dicebear.com/v2/initials/" + nickname + ".svg\" class=\"rounded-full\">"
+      result += "</div>"
+      result += "</td>"
+      result += "<td data-label=\"닉네임\">" + nickname + "</td>"
+      result += "<td data-label=\"수익률\">" + profit +"</td>"
+      result += "<td data-label=\"자산\">" + capital + "</td>"
+      result += "<td data-label=\"투자원금\">" + principal +"</td>"
+      result += "<td data-label=\"지분\">" + share + "</td>"
+      result += "</tr>"
+      return result;
+    }
+    const getUsedAsset = function () {
+      return new Promise((resolve, reject) => { // 1.
+        let token = $.cookie('user');
+        let data = {
+          "token": token
+        }
+        jQuery.ajax({
+          type: "GET",
+          url: "asset/used",
+          dataType: "json",
+          data: data,
+          success: (res) => {
+            resolve(res); // 2.
+          },
+          error: (e) => {
+            reject(e); // 3.
+          }
+        });
+      });
+    }
+    const getMyAsset = function () {
+      return new Promise((resolve, reject) => { // 1.
+        let token = $.cookie('user');
+        let data = {
+          "token": token
+        }
+        jQuery.ajax({
+          type: "GET",
+          url: "asset/my",
+          dataType: "json",
+          data: data,
+          success: (res) => {
+            resolve(res); // 2.
+          },
+          error: (e) => {
+            reject(e); // 3.
+          }
+        });
+      });
+    }
+
+    const getClientAsset = function () {
+      return new Promise((resolve, reject) => { // 1.
+        let token = $.cookie('user');
+        let data = {
+          "token": token
+        }
+        jQuery.ajax({
+          type: "GET",
+          url: "user/dashboard",
+          dataType: "json",
+          data: data,
+          success: (res) => {
+            resolve(res); // 2.
+          },
+          error: (e) => {
+            reject(e); // 3.
+          }
+        });
+      });
+    }
+  </script>
   <!-- Icons below are for demo only. Feel free to use any icon pack. Docs: https://bulma.io/documentation/elements/icon/ -->
   <link rel="stylesheet" href="https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css">
 

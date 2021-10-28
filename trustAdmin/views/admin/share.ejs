@@ -74,6 +74,29 @@
           </div>
         </div>
       </div>
+      <div class="card has-table">
+        <header class="card-header">
+          <p class="card-header-title">
+            <span class="icon"><i class="mdi mdi-account-multiple"></i></span>
+            지분
+          </p>
+          <a href="#" class="card-header-icon">
+            <span class="icon"><i class="mdi mdi-reload"></i></span>
+          </a>
+        </header>
+        <div class="card-content" id="progressTable">
+          <table>
+            <thead>
+              <tr>
+                <th>이름</th>
+                <th>지분</th>
+              </tr>
+            </thead>
+            <tbody id="rows">
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
     <% include ../footer.ejs %>
@@ -84,15 +107,64 @@
   <!-- Icons below are for demo only. Feel free to use any icon pack. Docs: https://bulma.io/documentation/elements/icon/ -->
   <link rel="stylesheet" href="https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css">
   <script>
+    var userMap = {};
     $("#datepicker").datepicker({
       dateFormat: 'yy-mm-dd'
     });
-    $("document").ready(function () {
+    $("document").ready(async function () {
       let dt = new Date();
       var str = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate();
       $("#datepicker").val(str);
-      setUserList();
+      await setUserList();
+      $("#progressTable").hide();
+      getList();
+      setBase();
     })
+    function setBase(){
+        jQuery.ajax({
+          type: "GET",
+          url: "/asset/used",
+          dataType: "json",
+          success: function (res){
+            $("#base").val(res['asset']['asset'])
+          },
+          error: (e) => {
+            reject(e); // 3.
+          }
+        });
+      }
+    
+    function makeRow(email, share) {
+      let result = ""
+      result += "<tr>";
+      result += "<td data-label=\"이메일\">" + userMap[email] + "</td>"
+      result += "<td data-label=\"지분\">" + Number(share) * 100 + "%</td>"
+      result += "</tr>"
+      return result;
+    }
+
+    function getList() {
+      let token = $.cookie('user');
+      let data = {
+        "token": token
+      }
+      jQuery.ajax({
+        type: "GET",
+        url: "share/client",
+        dataType: "json",
+        data: data,
+        success: function (response) {
+          response['list'].forEach(deposit => {
+            $("#rows").append(makeRow(deposit['email'], deposit['share']))
+          });
+          $("#progressTable").show();
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+          alert(xhr.status);
+          alert(thrownError);
+        }
+      });
+    }
 
     function setUserList() {
       jQuery.ajax({
@@ -103,7 +175,8 @@
           $("#clients").empty();
           let list = response['list'];
           for (var count = 0; count < list.length; count++) {
-            var option = $("<option>" + list[count]['email'] + "</option>");
+            userMap[list[count]['email']] = list[count]['name'];
+            var option = $("<option value=\"" + list[count]['email'] + "\">" + list[count]['name'] + "</option>");
             $('#clients').append(option);
           }
         },
@@ -141,6 +214,8 @@
                 console.log(`Sorry, we are out of ${response.message}.`);
             }
           }
+          $("#rows").empty();
+          getList();
         },
         error: function (xhr, ajaxOptions, thrownError) {
           closeLoadingWithMask()
@@ -149,6 +224,7 @@
         }
       });
     }
+    
   </script>
 </body>
 

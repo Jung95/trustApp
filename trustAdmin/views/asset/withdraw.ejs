@@ -30,32 +30,33 @@
                         <span class="icon"><i class="mdi mdi-information"></i></span>
                         출금액, 계좌번호, 은행과 출금신청일 기입해주시면 72시간내로 처리됩니다.
                         <br> 자산평가금액은 출금처리시 가격으로 결정됩니다.
+                        <br> 개인지갑 또는 은행으로 출금받을 수 있습니다.
                     </p>
                 </header>
                 <div class="card-content">
                     <div>
                         <div class="field">
-                            <label class="label">추가투자</label>
+                            <label class="label">입금신청</label>
                             <div class="field-body">
-                                <p>출금신청금액</p>
+                                <p>출금신청금액/수량</p>
                                 <div class="field">
                                     <div class="control icons-left">
-                                        <input class="input" type="number" name="asset" id="asset" placeholder="Asset">
-                                        <span class="icon left"><i class="mdi mdi-bitcoin"></i></span>
+                                        <input class="input" type="number" name="value" id="value" placeholder="출금액">
+                                        <span class="icon left"><i class="mdi mdi-cash-refund"></i></span>
                                     </div>
                                 </div>
-                                <p>계좌번호</p>
+                                <p>계좌번호/지갑주소</p>
                                 <div class="field">
                                     <div class="control icons-left">
-                                        <input class="input" type="number" name="asset" id="asset" placeholder="Asset">
-                                        <span class="icon left"><i class="mdi mdi-bitcoin"></i></span>
+                                        <input class="input" type="text" name="account" id="account" placeholder="계좌번호">
+                                        <span class="icon left"><i class="mdi mdi-bank-transfer-in"></i></span>
                                     </div>
                                 </div>
-                                <p>은행</p>
+                                <p>은행/거래소</p>
                                 <div class="field">
                                     <div class="control icons-left">
-                                        <input class="input" type="number" name="asset" id="asset" placeholder="Asset">
-                                        <span class="icon left"><i class="mdi mdi-bitcoin"></i></span>
+                                        <input class="input" type="text" name="bank" id="bank" placeholder="은행">
+                                        <span class="icon left"><i class="mdi mdi-bank"></i></span>
                                     </div>
                                 </div>
                                 <p>출금신청일자</p>
@@ -66,13 +67,40 @@
                                     </div>
                                 </div>
                                 <div class="control">
-                                    <button onClick="assetUpdate()" class="button blue">
+                                    <button onClick="withdraw()" class="button blue">
                                         신청
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="card has-table">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        <span class="icon"><i class="mdi mdi-account-multiple"></i></span>
+                        출금신청목록
+                    </p>
+                    <a href="#" class="card-header-icon">
+                        <span class="icon"><i class="mdi mdi-reload"></i></span>
+                    </a>
+                </header>
+                <div class="card-content" id="progressTable">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>일자</th>
+                                <th>금액</th>
+                                <th>은행</th>
+                                <th>계좌번호</th>
+                                <th>진행상황</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="rows">
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
@@ -92,19 +120,93 @@
             let dt = new Date();
             var str = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate();
             $("#datepicker").val(str)
+            $("#progressTable").hide();
+            getList();
         })
 
-        function assetUpdate() {
-            let asset = $('#asset').val()
-            let date = $('#datepicker').val()
+        function makeRow(value, date, progress, id, bank, account) {
+            let textProgress;
+            switch (progress) {
+                case 0:
+                    textProgress = "접수완료"
+                    break;
+                case 1:
+                    textProgress = "진행중"
+                    break;
+                case 2:
+                    textProgress = "보류중"
+                    break;
+                case 3:
+                    textProgress = "거절됨"
+                    break;
+                default:
+                    textProgress = "확인중";
+            }
+            let result = ""
+            result += "<tr>";
+            result += "<td data-label=\"금액\">" + date + "</td>"
+            result += "<td data-label=\"일자\">" + value + "₩</td>"
+            result += "<td data-label=\"은행\">" + bank + "</td>"
+            result += "<td data-label=\"계좌번호\">" + account + "</td>"
+            result += "<td data-label=\"진행상황\">" + textProgress + "</td>"
+            result += "<td data-label=\"변경\" class=\"actions-cell\">"
+            if (progress == 0) {
+
+                result += "<div class=\"buttons right nowrap\">"
+                result +=
+                "<button class=\"button small red --jb-modal\" data-target=\"sample-modal\" onClick=\"deleteRequest('"+id+"')\" type=\"button\">"
+                result += "<span class=\"icon\"><i class=\"mdi mdi-trash-can\"></i></span>"
+                result += "</button>"
+                result += "</div>"
+
+            }
+            result += "</td>"
+            result += "</tr>"
+            return result;
+        }
+
+        function getList() {
+            let token = $.cookie('user');
             let data = {
-                "asset": asset,
-                "date": date
+                "token": token
+            }
+            jQuery.ajax({
+                type: "GET",
+                url: "withdraw/progress",
+                dataType: "json",
+                data: data,
+                success: function (response) {
+                    response['list'].forEach(deposit => {
+                        $("#rows").append(makeRow(deposit['value'], deposit['date'], deposit[
+                            'progress'], deposit['_id'], deposit['bank'], deposit[
+                            'account']))
+                    });
+                    $("#progressTable").show();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(xhr.status);
+                    alert(thrownError);
+                }
+            });
+        }
+
+        function withdraw() {
+            let value = $('#value').val()
+            let date = $('#datepicker').val()
+            let account = $('#account').val()
+            let bank = $('#bank').val()
+            let token = $.cookie('user');
+            let data = {
+                "value": value,
+                "date": date,
+                "bank": bank,
+                "account": account,
+                "token": token
             }
             LoadingWithMask()
             jQuery.ajax({
                 type: "POST",
-                url: "asset",
+                url: "withdraw",
                 dataType: "json",
                 data: data,
                 success: function (response) {
@@ -112,12 +214,14 @@
                     if (response.message) {
                         switch (response.message) {
                             case '1':
-                                alert('업데이트완료')
+                                alert('신청완료')
                                 break;
                             default:
                                 console.log(`Sorry, we are out of ${response.message}.`);
                         }
                     }
+                    $("#rows").empty();
+                    getList();
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     closeLoadingWithMask()
@@ -126,6 +230,37 @@
                 }
             });
         }
+
+        function deleteRequest(requestId) {
+                let token = $.cookie('user');
+                let data = {
+                    "requestId": requestId,
+                    "token": token,
+                }
+                jQuery.ajax({
+                    type: "DELETE",
+                    url: "request",
+                    dataType: "json",
+                    data: data,
+                    success: function (response) {
+                        if (response.message) {
+                            switch (response.message) {
+                                case '1':
+                                    alert('삭제완료')
+                                    break;
+                                default:
+                                    console.log(`Sorry, we are out of ${response.message}.`);
+                            }
+                        }
+                        $("#rows").empty();
+                        getList();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(xhr.status);
+                        alert(thrownError);
+                    }
+                });
+            }
     </script>
 </body>
 
