@@ -33,7 +33,6 @@ const userWithEncodePassword = async ({ // destructuring
 
 const errorGenerator = (message, statusCode) => { // error 를 핸들링 하는 함수
     const error = new Error(message); // error 객체를 생성
-    console.log(message);
     error.statusCode = statusCode;
     throw error; // error 를 핸들링 하는 하는 미들웨어로 에러를 던진다.
 };
@@ -85,7 +84,6 @@ const signIn = async (req, res, next) => {
         const user = await User.findOne({
             email
         }); // email 로 조회한다.
-        console.log(user)
         if (!user){
             res.status(201).json({
                 error: "1"

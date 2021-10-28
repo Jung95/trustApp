@@ -18,7 +18,6 @@ const transaction = async (req, res, next) => {
             email,
             date
         } = req.body;
-        console.log(req.body)
         const newTransaction = new Transaction({
             value: value,
             base: base,
@@ -47,7 +46,6 @@ const transaction = async (req, res, next) => {
             "last": true
         });
 
-        console.log(userData);
         userData.forEach(async function (data, index) {
             let calculation = parseFloat(data['calculation']);
             let principal = parseFloat(data['principal']);
@@ -101,13 +99,11 @@ const assetUpdate = async (req, res, next) => { // signUp 하는 로직
             "date": date,
             "isUsed": true
         }); // updated date 의 정보를 가지고 Asset 콜렉션에서 조회한다.
-        console.log(lastAsset);
         const newAsset = new Asset({
             asset: asset,
             date: date
         });
         if (lastAsset) {
-            console.log(lastAsset.date);
             Asset.updateMany({
                 "date": date
             }, {
@@ -147,11 +143,9 @@ const clientShare = async (req, res, next) => {
         const {
             _id
         } = decodedToken;
-        console.log(_id)
         const user = await User.findOne({
             _id
           }); 
-          console.log(user)
           if(user['level']!=='3'){
             res.status(201).json({
             });

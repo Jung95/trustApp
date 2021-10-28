@@ -191,7 +191,6 @@
       let principal = share['principal'].toLocaleString('ko-KR', {
         maximumFractionDigits: 0
       })
-      console.log(principal)
       $("#profit").text(profit.toLocaleString('ko-KR', {
         maximumFractionDigits: 0
       }) + "₩")
@@ -206,7 +205,6 @@
     function makeRow(nickname, asset, principal, share) {
       let profit;
       let capital;
-      console.log(share)
       if (principal == null) {
         principal = "비공개"
         profit = "비공개"

@@ -7,7 +7,6 @@ var router = express.Router();
 /* GET home page. */
 router.get('/', isAuth, function(req, res, next) {
   res.render('index', { title: '종호신탁', name: req.user.name, level: req.user.level, page : "index"});
-  console.log(req.user);
 });
 
   /*

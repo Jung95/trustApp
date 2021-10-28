@@ -16,7 +16,6 @@ const deleteRequest = async (req, res, next) => {
             requestId,
             token
         } = req.body;
-        console.log(req.body)
         const decodedToken = jwt.verify(token, TOKEN_KEY);
         const {
             _id
@@ -169,7 +168,7 @@ const usedAsset = async (req, res, next) => {
     try {
         const asset = await Asset.findOne({
             "isUsed": true
-        });
+        }).sort("-date");
         res.status(201).json({
             asset
         })
@@ -218,6 +217,7 @@ const assetList = async (req, res, next) => {
 }
 const historyList = async (req, res, next) => {
     try {
+        let result = [];
         const page = await parseInt(req.params.page);
         const limit = 30;
         const {
@@ -231,8 +231,14 @@ const historyList = async (req, res, next) => {
             _id
         });
         const list = await Asset.find().where("isUsed").equals(true).sort("-date").skip(((page - 1) * limit)).limit(limit);
+        for( let asset of list){
+            let date = asset['date'];
+            let share = await Share.findOne({"date":{$lte:date},"email":user['email']}).sort("-updated");
+            let capital = share['share']*asset['asset'];
+            result.push({"date":date,"capital":capital,"share":share})
+        }
         res.status(201).json({
-            list
+            result
         }); // list 생성되었다는 메세지를 응답으로 보낸다.
 
 
