@@ -215,6 +215,7 @@ const assetList = async (req, res, next) => {
 
     } catch (err) {}
 }
+
 const historyList = async (req, res, next) => {
     try {
         let result = [];
@@ -244,6 +245,38 @@ const historyList = async (req, res, next) => {
 
     } catch (err) {}
 }
+const chart = async (req, res, next) => {
+    try {
+        let dates = [];
+        let capitals = [];
+        const limit = 30;
+        const {
+            token,
+        } = req.query;
+        const decodedToken = jwt.verify(token, TOKEN_KEY);
+        const {
+            _id
+        } = decodedToken;
+        const user = await User.findOne({
+            _id
+        });
+        const list = await Asset.find().where("isUsed").equals(true).sort("-date").limit(limit);
+        for( let asset of list){
+            let date = asset['date'];
+            let share = await Share.findOne({"date":{$lte:date},"email":user['email']}).sort("-updated");
+            let capital = share['share']*asset['asset'];
+            dates.push(date);
+            capitals.push(capital);
+        }
+        res.status(201).json({
+            dates,
+            capitals
+        }); // list 생성되었다는 메세지를 응답으로 보낸다.
+
+
+    } catch (err) {}
+}
+
 module.exports = {
     deposit,
     withdraw,
@@ -254,5 +287,6 @@ module.exports = {
     myAsset,
     deleteRequest,
     assetList,
-    historyList
+    historyList,
+    chart
 }; // signUp 함수를 module 로 내보낸다.

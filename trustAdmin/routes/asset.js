@@ -10,7 +10,8 @@ const {
     myAsset,
     deleteRequest,
     assetList,
-    historyList
+    historyList,
+    chart
 } = require("../controllers/asset"); // 위에서 작성한 auth.js 파일에서 signUp 모듈을 임포트 한다.
 
 var router = express.Router(); // express 프레임워크의 router 함수를 사용해서 위에서 말한 라우팅을 할 수 있다.
@@ -49,4 +50,5 @@ router.get('/transaction/list',requestList);
 router.get('/used',usedAsset);
 router.get('/my',myAsset);
 router.get('/list/:page',assetList);
+router.get('/chart',chart);
 module.exports = router; // 이 모듈을 내보냄.

@@ -8,12 +8,4 @@ var router = express.Router();
 router.get('/', isAuth, function(req, res, next) {
   res.render('index', { title: '종호신탁', name: req.user.name, level: req.user.level, page : "index"});
 });
-
-  /*
-  let test = new User();
-  test.email = 'jj';
-  test.password = 'ja';
-  test.name = 'jj1';
-  test.save();
-  */
 module.exports = router;

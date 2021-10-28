@@ -72,7 +72,7 @@
             var str = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate();
             $("#datepicker").val(str)
             $("#progressTable").hide();
-            getList();
+            getList(1);
         })
 
         function makeRow(date, share, capital, principal, calculation) {
@@ -80,41 +80,45 @@
             result += "<tr>";
             result += "<td data-label=\"일자\">" + date + "</td>"
             result += "<td data-label=\"자산\">" + capital.toLocaleString('ko-KR', {
-          maximumFractionDigits: 0
-        }) + "₩</td>"
+                maximumFractionDigits: 0
+            }) + "₩</td>"
             result += "<td data-label=\"원금\">" + principal.toLocaleString('ko-KR', {
-          maximumFractionDigits: 0
-        }) + "₩</td>"
+                maximumFractionDigits: 0
+            }) + "₩</td>"
             result += "<td data-label=\"수익금\">" + (capital - principal).toLocaleString('ko-KR', {
-          maximumFractionDigits: 0
-        }) + "₩</td>"
-            result += "<td data-label=\"수익률\">" + (((capital / principal) - 1)*100).toFixed(2) + "%</td>"
+                maximumFractionDigits: 0
+            }) + "₩</td>"
+            result += "<td data-label=\"수익률\">" + (((capital / principal) - 1) * 100).toFixed(2) + "%</td>"
             result += "<td data-label=\"수수료\">" + ((capital - principal) * 0.15).toLocaleString('ko-KR', {
-          maximumFractionDigits: 0
-        }) + "₩</td>"
+                maximumFractionDigits: 0
+            }) + "₩</td>"
             result += "<td data-label=\"정산완료금\">"
             result += calculation.toLocaleString('ko-KR', {
-          maximumFractionDigits: 0
-        });
+                maximumFractionDigits: 0
+            });
             result += "</td>"
-            result += "<td data-label=\"지분\">" + (share*100).toFixed(2) + "%</td>"
+            result += "<td data-label=\"지분\">" + (share * 100).toFixed(2) + "%</td>"
             result += "</tr>"
             return result;
         }
 
-        function getList() {
+        function getList(page) {
+            $('#rows').empty()
             let token = $.cookie('user');
             let data = {
                 "token": token
             }
             jQuery.ajax({
                 type: "GET",
-                url: "history/1",
+                url: "history/" + page,
                 dataType: "json",
                 data: data,
                 success: function (response) {
                     response['result'].forEach(data => {
-                        $("#rows").append(makeRow(data['date'], data['share']['share'] , data['capital'], data['share']['principal'] , data['share']['calculation'] ))
+                        $("#rows").append(makeRow(data['date'], data['share']['share'], data[
+                            'capital'], data['share']['principal'], data['share'][
+                            'calculation'
+                        ]))
                     });
                     $("#progressTable").show();
                 },
