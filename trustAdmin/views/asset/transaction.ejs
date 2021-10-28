@@ -76,7 +76,6 @@
 
         function makeRow(value, date, progress, id, bank, account, type) {
             let korType;
-            console.log(type)
             switch (type) {
                 case "deposit":
                     korType = "입금"
@@ -105,7 +104,7 @@
             let result = ""
             result += "<tr>";
             result += "<td data-label=\"금액\">" + date + "</td>"
-            result += "<td data-label=\"금액\">" + korType + "</td>"
+            result += "<td data-label=\"종류\">" + korType + "</td>"
             result += "<td data-label=\"일자\">" + value + "₩</td>"
             result += "<td data-label=\"은행\">" + bank + "</td>"
             result += "<td data-label=\"계좌번호\">" + account + "</td>"
