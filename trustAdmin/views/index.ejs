@@ -21,6 +21,21 @@
             <div class="flex items-center justify-between">
               <div class="widget-label">
                 <h3>
+                  자산
+                </h3>
+                <h1 id="total">
+                  로딩중
+                </h1>
+              </div>
+              <span class="icon widget-icon text-red-500"><i class="mdi mdi-cash mdi-48px"></i></span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-content">
+            <div class="flex items-center justify-between">
+              <div class="widget-label">
+                <h3>
                   수익금
                 </h3>
                 <h1 id="profit">
@@ -156,6 +171,9 @@
       }) + "₩")
       $("#rate").text(rate + "%")
       $("#principal").text(principal + "₩")
+      $("#total").text((asset * share['share']).toLocaleString('ko-KR', {
+        maximumFractionDigits: 0
+      })+ "₩")
       getChart();
 
       let clientAsset = await getClientAsset();
