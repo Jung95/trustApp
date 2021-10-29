@@ -71,7 +71,7 @@
             let dt = new Date();
             var str = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate();
             $("#datepicker").val(str)
-            $("#progressTable").hide();
+            //$("#progressTable").hide();
             getList(1);
         })
 
@@ -103,7 +103,7 @@
         }
 
         function getList(page) {
-            $('#rows').text("<img src=\"img/loading-buffering.gif\">")
+            $('#rows').html("<img src=\"/img/loading.gif\">")
             let token = $.cookie('user');
             let data = {
                 "token": token
@@ -121,7 +121,7 @@
                             'calculation'
                         ]))
                     });
-                    $("#progressTable").show();
+                    //$("#progressTable").show();
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     alert(xhr.status);
