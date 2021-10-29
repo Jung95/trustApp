@@ -7,6 +7,10 @@
 var app = require('../app');
 var debug = require('debug')('myapp:server');
 var http = require('http');
+const fs = require('fs');
+const path = require('path');
+var https = require('https');
+var domain = 'jcryptotrust.com';
 
 /**
  * Get port from environment and store in Express.
@@ -88,3 +92,14 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+/*
+const options = {
+  ca: fs.readFileSync('/etc/letsencrypt/live/jcryptotrust.com/fullchain.pem'),
+  key: fs.readFileSync('/etc/letsencrypt/live/jcryptotrust.com/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/jcryptotrust.com/cert.pem')
+};
+// Create an HTTPS service identical to the HTTP service.
+https.createServer(options, app).listen(443);
+*/
+
+
