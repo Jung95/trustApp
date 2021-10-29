@@ -156,11 +156,15 @@
       }) + "₩")
       $("#rate").text(rate + "%")
       $("#principal").text(principal + "₩")
+      getChart();
+
       let clientAsset = await getClientAsset();
+      console.log(clientAsset);
       clientAsset['list'].forEach(client => {
         $("#rows").append(makeRow(client['email'], asset, client['principal'], client['share']))
       });
-      getChart();
+
+     
     })
 
     function makeRow(nickname, asset, principal, share) {

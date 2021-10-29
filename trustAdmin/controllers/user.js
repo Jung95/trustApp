@@ -7,19 +7,28 @@ dotenv.config()
 
 const userDashboard = async (req, res, next) => {
     try {
-        var list=[];
+        var list = [];
         const userList = await User.find();
-        for( let user of userList){
-            let share = await Share.findOne({"email":user['email'],"last":true});
-            share['email'] = user['nickname'];
-            if(user['shareOpen']==false){
-                share['share']=null;
-            }if(user['principalOpen']==false){
-                share['principal']=null;
-            }if(user['calculationOpen']==false){
-                share['calculation']=null;
+        for (let user of userList) {
+            let share = await Share.findOne({
+                "email": user['email'],
+                "last": true
+            });
+            if (share) {
+                console.log(share);
+                share['email'] = user['nickname'];
+                if (user['shareOpen'] == false) {
+                    share['share'] = null;
+                }
+                if (user['principalOpen'] == false) {
+                    share['principal'] = null;
+                }
+                if (user['calculationOpen'] == false) {
+                    share['calculation'] = null;
+                }
+                list.push(share);
             }
-            list.push(share);
+
         }
         res.status(201).json({
             list
