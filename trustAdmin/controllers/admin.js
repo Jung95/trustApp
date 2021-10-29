@@ -16,8 +16,22 @@ const transaction = async (req, res, next) => {
             value,
             base,
             email,
-            date
+            date,
+            token
         } = req.body;
+        const decodedToken = jwt.verify(token, TOKEN_KEY);
+        const {
+            _id
+        } = decodedToken;
+        const user = await User.findOne({
+            _id
+        });
+        if (user['level'] == 3) {
+            res.status(201).json({
+                message: "permission"
+            });
+            return null;
+        }
         const newTransaction = new Transaction({
             value: value,
             base: base,
@@ -28,19 +42,19 @@ const transaction = async (req, res, next) => {
         const userList = await User.find().select("email");
 
         // 쉐어가 존재하지않을 떄 생성
-            for (let user of userList) {
-                let share = await Share.findOne({
-                    "last": true,
-                    "email": user['email']
-                });
-                if (!share) {
-                    let newShare = new Share({
-                        email: user['email'],
-                        date: date
-                    })
-                    await newShare.save();
-                }
+        for (let user of userList) {
+            let share = await Share.findOne({
+                "last": true,
+                "email": user['email']
+            });
+            if (!share) {
+                let newShare = new Share({
+                    email: user['email'],
+                    date: date
+                })
+                await newShare.save();
             }
+        }
 
         let userData = await Share.find({
             "last": true
@@ -61,7 +75,7 @@ const transaction = async (req, res, next) => {
                     principal = (1 + fValue / (fBase * share)) * principal;
                     calculation = (1 + fValue / (fBase * share)) * calculation;
                 }
-            } else {//not transaction sender
+            } else { //not transaction sender
                 share = (share * fBase) / (fValue + fBase);
             }
 
@@ -93,8 +107,22 @@ const assetUpdate = async (req, res, next) => { // signUp 하는 로직
     try {
         const {
             asset,
-            date
+            date,
+            token
         } = req.body; // POST 메소드로 들어온 요청의 데이터(body) 에서d date 을 destructuring 한다.
+        const decodedToken = jwt.verify(token, TOKEN_KEY);
+        const {
+            _id
+        } = decodedToken;
+        const user = await User.findOne({
+            _id
+        });
+        if (user['level'] == 3) {
+            res.status(201).json({
+                message: "permission"
+            });
+            return null;
+        }
         const lastAsset = await Asset.findOne({
             "date": date,
             "isUsed": true
@@ -138,23 +166,25 @@ const clientShare = async (req, res, next) => {
         const {
             token
         } = req.query;
-       
+
         const decodedToken = jwt.verify(token, TOKEN_KEY);
         const {
             _id
         } = decodedToken;
         const user = await User.findOne({
             _id
-          }); 
-          if(user['level']!=='3'){
+        });
+        if (user['level'] !== '3') {
             res.status(201).json({
+                message: "permission"
             });
-          }else{
+            return null;
+        } else {
             const list = await Share.find().where("last").equals(true).sort("-share");
             res.status(201).json({
                 list
             }); // list 생성되었다는 메세지를 응답으로 보낸다.
-          }
+        }
 
     } catch (err) {}
 }

@@ -8,6 +8,22 @@ dotenv.config()
 const userDashboard = async (req, res, next) => {
     try {
         var list = [];
+        const {
+            token
+        } = req.body;
+        const decodedToken = jwt.verify(token, TOKEN_KEY);
+        const {
+            _id
+        } = decodedToken;
+        const user = await User.findOne({
+            _id
+        });
+        if(!user){
+            res.status(201).json({
+                message: "permission"
+            });
+            return null;
+        }
         const userList = await User.find();
         for (let user of userList) {
             let share = await Share.findOne({
@@ -37,6 +53,22 @@ const userDashboard = async (req, res, next) => {
 }
 const userList = async (req, res, next) => {
     try {
+        const {
+            token
+        } = req.body;
+        const decodedToken = jwt.verify(token, TOKEN_KEY);
+        const {
+            _id
+        } = decodedToken;
+        const user = await User.findOne({
+            _id
+        });
+        if(!user){
+            res.status(201).json({
+                message: "permission"
+            });
+            return null;
+        }
         const list = await User.find().select('email nickname name');
         res.status(201).json({
             list
