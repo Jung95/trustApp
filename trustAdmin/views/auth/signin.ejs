@@ -66,6 +66,7 @@
 
     function signin() {
       let email = $('#email').val()
+      email = email.trim()
       let password = $('#password').val()
       let data = {
         "email": email,
