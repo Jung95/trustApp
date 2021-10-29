@@ -1,4 +1,10 @@
 var express = require("express"); // express 는 서버 개발을 위한 경량화된 프레임워크다.
+var dotenv = require('dotenv');
+dotenv.config()
+const {
+    BANK,
+    KLAYTN
+} = process.env;
 const isAuth  = require("../middleware/isAuth");
 const {
     deposit,
@@ -19,7 +25,7 @@ var router = express.Router(); // express 프레임워크의 router 함수를 �
 
 router.get('/deposit',isAuth, function (req, res, next) {
     res.render("asset/deposit", {
-        title: '입금신청', name:req.user.name, level: req.user.level, page: "deposit"
+        title: '입금신청', name:req.user.name, level: req.user.level, page: "deposit", bank:BANK, klaytn:KLAYTN
     });
 });
 
