@@ -89,14 +89,14 @@
                 maximumFractionDigits: 0
             }) + "₩</td>"
             result += "<td data-label=\"수익률\">" + (((capital / principal) - 1) * 100).toFixed(2) + "%</td>"
-            result += "<td data-label=\"수수료\">" + ((capital - principal) * 0.15).toLocaleString('ko-KR', {
+            result += "<td data-label=\"미납수수료\">" + ((capital - principal) * 0.15).toLocaleString('ko-KR', {
                 maximumFractionDigits: 0
             }) + "₩</td>"
             result += "<td data-label=\"정산완료금\">"
             result += calculation.toLocaleString('ko-KR', {
                 maximumFractionDigits: 0
             });
-            result += "</td>"
+            result += "₩</td>"
             result += "<td data-label=\"지분\">" + (share * 100).toFixed(2) + "%</td>"
             result += "</tr>"
             return result;
