@@ -15,7 +15,6 @@ const userDashboard = async (req, res, next) => {
             token
         } = req.query;
         const decodedToken = jwt.verify(token, TOKEN_KEY);
-        console.log(decodedToken);
         const {
             _id
         } = decodedToken;
@@ -36,7 +35,6 @@ const userDashboard = async (req, res, next) => {
                 "last": true
             });
             if (share) {
-                console.log(share);
                 share['email'] = user['nickname'];
                 if (user['shareOpen'] == false) {
                     share['share'] = null;

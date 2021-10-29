@@ -159,7 +159,6 @@
       getChart();
 
       let clientAsset = await getClientAsset();
-      console.log(clientAsset);
       clientAsset['list'].forEach(client => {
         $("#rows").append(makeRow(client['email'], asset, client['principal'], client['share']))
       });
