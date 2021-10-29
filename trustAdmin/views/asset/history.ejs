@@ -103,7 +103,7 @@
         }
 
         function getList(page) {
-            $('#rows').empty()
+            $('#rows').text("<img src=\"img/loading-buffering.gif\">")
             let token = $.cookie('user');
             let data = {
                 "token": token
@@ -114,6 +114,7 @@
                 dataType: "json",
                 data: data,
                 success: function (response) {
+                    $('#rows').empty()
                     response['result'].forEach(data => {
                         $("#rows").append(makeRow(data['date'], data['share']['share'], data[
                             'capital'], data['share']['principal'], data['share'][
