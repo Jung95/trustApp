@@ -132,7 +132,9 @@
         dataType: "json",
         data:data,
         success: function (res) {
-          $("#base").val(res['asset']['asset'])
+          if(res['asset']){
+            $("#base").val(res['asset']['asset'])
+          }
         },
         error: (e) => {
           reject(e); // 3.

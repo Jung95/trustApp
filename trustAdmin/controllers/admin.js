@@ -19,6 +19,7 @@ const transaction = async (req, res, next) => {
             date,
             token
         } = req.body;
+        
         const decodedToken = jwt.verify(token, TOKEN_KEY);
         const {
             _id
@@ -26,7 +27,7 @@ const transaction = async (req, res, next) => {
         const user = await User.findOne({
             _id
         });
-        if (user['level'] == 3) {
+        if (user['level'] !== '3') {
             res.status(201).json({
                 message: "permission"
             });
@@ -117,7 +118,7 @@ const assetUpdate = async (req, res, next) => { // signUp 하는 로직
         const user = await User.findOne({
             _id
         });
-        if (user['level'] == 3) {
+        if (user['level'] !== '3') {
             res.status(201).json({
                 message: "permission"
             });
