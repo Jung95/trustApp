@@ -1,25 +1,30 @@
 const User = require("../models/user");
 const Share = require("../models/share");
+const jwt = require("jsonwebtoken")
 var dotenv = require('dotenv');
 
 dotenv.config()
-
+const {
+    TOKEN_KEY
+} = process.env;
 
 const userDashboard = async (req, res, next) => {
     try {
         var list = [];
         const {
             token
-        } = req.body;
+        } = req.query;
         const decodedToken = jwt.verify(token, TOKEN_KEY);
+        console.log(decodedToken);
         const {
             _id
         } = decodedToken;
+
         const user = await User.findOne({
             _id
         });
         if(!user){
-            res.status(201).json({
+            res.status(404).json({
                 message: "permission"
             });
             return null;
@@ -55,7 +60,7 @@ const userList = async (req, res, next) => {
     try {
         const {
             token
-        } = req.body;
+        } = req.query;
         const decodedToken = jwt.verify(token, TOKEN_KEY);
         const {
             _id

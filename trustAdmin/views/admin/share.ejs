@@ -120,20 +120,26 @@
       getList();
       setBase();
     })
-    function setBase(){
-        jQuery.ajax({
-          type: "GET",
-          url: "/asset/used",
-          dataType: "json",
-          success: function (res){
-            $("#base").val(res['asset']['asset'])
-          },
-          error: (e) => {
-            reject(e); // 3.
-          }
-        });
+
+    function setBase() {
+      let token = $.cookie('user');
+      let data = {
+        "token": token,
       }
-    
+      jQuery.ajax({
+        type: "GET",
+        url: "/asset/used",
+        dataType: "json",
+        data:data,
+        success: function (res) {
+          $("#base").val(res['asset']['asset'])
+        },
+        error: (e) => {
+          reject(e); // 3.
+        }
+      });
+    }
+
     function makeRow(email, share) {
       let result = ""
       result += "<tr>";
@@ -167,10 +173,16 @@
     }
 
     function setUserList() {
+      let token = $.cookie('user');
+      let data = {
+        "token": token,
+      }
       jQuery.ajax({
+        
         type: "GET",
         url: "/user",
         dataType: "json",
+        data: data,
         success: function (response) {
           $("#clients").empty();
           let list = response['list'];
@@ -188,11 +200,13 @@
     }
 
     function transaction() {
+      let token = $.cookie('user');
       let change = $('#change').val()
       let base = $('#base').val()
       let date = $('#datepicker').val()
       let email = $("#clients option:selected").val()
       let data = {
+        "token": token,
         "value": change,
         "base": base,
         "date": date,
@@ -224,7 +238,6 @@
         }
       });
     }
-    
   </script>
 </body>
 
