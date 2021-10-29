@@ -100,6 +100,9 @@
                   <div></div>
                 </div>
               </div>
+              <span id="chart-loading">
+                <img src="/img/loading.gif" alt="loading">
+              </span>
               <canvas id="big-line-chart" width="2992" height="1000" class="chartjs-render-monitor block"
                 style="height: 400px; width: 1197px;"></canvas>
             </div>
@@ -157,6 +160,7 @@
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
   <script>
     $("document").ready(async function () {
+      $("#big-line-chart").hide();
       let share = await getMyAsset();
       let asset = await getUsedAsset();
       share = share['share'];
@@ -298,6 +302,8 @@
         dataType: "json",
         data: data,
         success: function (response) {
+          $("#chart-loading").hide();
+          $("#big-line-chart").show();
           var chartColors = {
             "default": {
               primary: '#00D1B2',
