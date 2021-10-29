@@ -23,6 +23,11 @@ router.get('/client',isAuth, function (req, res, next) {
         title: '회원관리', name:req.user.name, level: req.user.level, page: "client"
     });
 });
+router.get('/request',isAuth, function (req, res, next) {
+    res.render("admin/request", {
+        title: '요청관리', name:req.user.name, level: req.user.level, page: "request"
+    });
+});
 router.get('/share/client', clientShare);
 router.post('/asset', assetUpdate);
 router.post('/transaction', transaction);
