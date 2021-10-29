@@ -78,9 +78,11 @@
         })
 
         function assetUpdate() {
+            let token = $.cookie('user');
             let asset = $('#asset').val()
             let date = $('#datepicker').val()
             let data = {
+                "token": token,
                 "asset": asset,
                 "date": date
             }
