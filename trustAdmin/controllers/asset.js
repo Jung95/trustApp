@@ -264,7 +264,7 @@ const chart = async (req, res, next) => {
         for( let asset of list){
             let date = asset['date'];
             let share = await Share.findOne({"date":{$lte:date},"email":user['email']}).sort("-updated");
-            let capital = share['share']*asset['asset'];
+            let capital = (share['share']*asset['asset']).toFixed(0);
             dates.push(date);
             capitals.push(capital);
         }
