@@ -2,6 +2,7 @@ const Asset = require("../models/asset");
 const Transaction = require("../models/transaction");
 const Share = require("../models/share");
 const User = require("../models/user");
+const Request = require("../models/request");
 var dotenv = require('dotenv');
 const jwt = require("jsonwebtoken"); // jsonwebtoken 라이브러리
 
@@ -19,7 +20,7 @@ const transaction = async (req, res, next) => {
             date,
             token
         } = req.body;
-        
+
         const decodedToken = jwt.verify(token, TOKEN_KEY);
         const {
             _id
@@ -190,8 +191,39 @@ const clientShare = async (req, res, next) => {
     } catch (err) {}
 }
 
+
+const requestList = async (req, res, next) => {
+    try {
+        const {
+            token
+        } = req.query;
+        const decodedToken = jwt.verify(token, TOKEN_KEY);
+        const {
+            _id
+        } = decodedToken;
+        const user = await User.findOne({
+            _id
+        });
+        if (user['level'] !== '3') {
+            console.log('hi1')
+            res.status(201).json({
+                message: "permission"
+            });
+            return null;
+        } else {
+            console.log('hi2')
+            const list = await Request.find({}).sort("-date");
+            res.status(201).json({
+                list
+            })
+        }
+    } catch (err) {}
+}
+
+
 module.exports = {
     assetUpdate,
     transaction,
-    clientShare
+    clientShare,
+    requestList
 }; // signUp 함수를 module 로 내보낸다.

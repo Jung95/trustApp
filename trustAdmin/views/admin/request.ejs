@@ -67,7 +67,7 @@
         $("#datepicker").datepicker({
             dateFormat: 'yy-mm-dd'
         });
-        $("document").ready(function () {
+        $("document").ready(async function () {
             let dt = new Date();
             var str = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate();
             $("#datepicker").val(str)
@@ -75,7 +75,7 @@
             getList();
         })
 
-        function makeRow(value, date, progress, id, bank, account, type) {
+        function makeRow(value, name, date, progress, id, bank, account, type) {
             let korType;
             switch (type) {
                 case "deposit":
@@ -108,6 +108,7 @@
             let result = ""
             result += "<tr>";
             result += "<td data-label=\"일자\">" + date + "</td>"
+            result += "<td data-label=\"이름\">" + name + "</td>"
             result += "<td data-label=\"종류\">" + korType + "</td>"
             result += "<td data-label=\"금액\">" + value.toLocaleString('ko-KR', {
                 maximumFractionDigits: 0
@@ -132,19 +133,22 @@
             return result;
         }
 
-        function getList() {
+        async function getList() {
             let token = $.cookie('user');
             let data = {
                 "token": token
             }
+            
             jQuery.ajax({
                 type: "GET",
-                url: "transaction/list",
+                url: "/admin/request/list",
                 dataType: "json",
                 data: data,
-                success: function (response) {
+                success: async function (response) {
+                    let map = await mapEmailName();
                     response['list'].forEach(deposit => {
-                        $("#rows").append(makeRow(deposit['value'], deposit['date'], deposit[
+                        $("#rows").append(makeRow(deposit['value'], map[deposit['email']], deposit[
+                            'date'], deposit[
                             'progress'], deposit['_id'], deposit['bank'], deposit[
                             'account'], deposit['type']))
                     });
@@ -196,36 +200,32 @@
             });
         }
 
-        function deleteRequest(requestId) {
-            let token = $.cookie('user');
-            let data = {
-                "requestId": requestId,
-                "token": token,
-            }
-            jQuery.ajax({
-                type: "DELETE",
-                url: "request",
-                dataType: "json",
-                data: data,
-                success: function (response) {
-                    if (response.message) {
-                        switch (response.message) {
-                            case '1':
-                                alert('삭제완료')
-                                break;
-                            default:
-                                console.log(`Sorry, we are out of ${response.message}.`);
-                        }
-                    }
-                    $("#rows").empty();
-                    getList();
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    alert(xhr.status);
-                    alert(thrownError);
+        const mapEmailName = function () {
+            return new Promise((resolve, reject) => { // 1.
+                let dic = {}
+                let token = $.cookie('user');
+                let data = {
+                    "token": token
                 }
+                jQuery.ajax({
+                    type: "GET",
+                    url: "/user",
+                    dataType: "json",
+                    data: data,
+                    success: (response) => {
+                        let list = response['list'];
+                        for (var count = 0; count < list.length; count++) {
+                            dic[list[count]['email']] = list[count]['name'];
+                        }
+                        resolve(dic); // 2.
+                    },
+                    error: (e) => {
+                        reject(e); // 3.
+                    }
+                });
             });
         }
+
     </script>
 </body>
 
