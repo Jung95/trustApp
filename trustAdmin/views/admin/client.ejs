@@ -42,52 +42,18 @@
                                     <table>
                                         <thead>
                                             <tr>
-                                                <th></th>
                                                 <th>이름</th>
-                                                <th>수익률</th>
                                                 <th>자산</th>
                                                 <th>투자원금</th>
-                                                <th>지분</th>
+                                                <th>수익금</th>
+                                                <th>수익률</th>
                                                 <th>미납수수료</th>
                                                 <th>정산완료금</th>
-                                                <th>가입일</th>
-                                                <th></th>
+                                                <th>지분</th>
+                                                <th>작업</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td class="image-cell">
-                                                    <div class="image">
-                                                        <img src="https://avatars.dicebear.com/v2/initials/홍.svg"
-                                                            class="rounded-full">
-                                                    </div>
-                                                </td>
-                                                <td data-label="Name">홍길동</td>
-                                                <td data-label="Company">비공개</td>
-                                                <td data-label="Company">비공개</td>
-                                                <td data-label="Company">비공개</td>
-                                                <td data-label="Company">비공개</td>
-                                                <td data-label="City">1,000,000 ₩</td>
-                                                <td data-label="Progress" class="progress-cell">
-                                                    3%
-                                                </td>
-                                                <td data-label="Created">
-                                                    <small class="text-gray-500" title="Oct 25, 2021">Oct 25,
-                                                        2021</small>
-                                                </td>
-                                                <td class="actions-cell">
-                                                    <div class="buttons right nowrap">
-                                                        <button class="button small green --jb-modal"
-                                                            data-target="sample-modal-2" type="button">
-                                                            <span class="icon"><i class="mdi mdi-eye"></i></span>
-                                                        </button>
-                                                        <button class="button small red --jb-modal"
-                                                            data-target="sample-modal" type="button">
-                                                            <span class="icon"><i class="mdi mdi-trash-can"></i></span>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                        <tbody id="rows">
                                         </tbody>
                                     </table>
                                     <!-- not use yet
@@ -121,11 +87,61 @@
         $("#datepicker").datepicker({
             dateFormat: 'yy-mm-dd'
         });
-        $("document").ready(function () {
+        $("document").ready(async function () {
             let dt = new Date();
             var str = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate();
             $("#datepicker").val(str)
+            let map = await mapEmailName();
+            let asset = await getUsedAsset();
+            asset = asset['asset']['asset']
+            getList(asset,map);
         })
+        const getUsedAsset = function () {
+            return new Promise((resolve, reject) => { // 1.
+                let token = $.cookie('user');
+                let data = {
+                    "token": token
+                }
+                jQuery.ajax({
+                    type: "GET",
+                    url: "/asset/used",
+                    dataType: "json",
+                    data: data,
+                    success: (res) => {
+                        resolve(res); // 2.
+                    },
+                    error: (e) => {
+                        reject(e); // 3.
+                    }
+                });
+            });
+        }
+
+        const mapEmailName = function () {
+            return new Promise((resolve, reject) => { // 1.
+                let dic = {}
+                let token = $.cookie('user');
+                let data = {
+                    "token": token
+                }
+                jQuery.ajax({
+                    type: "GET",
+                    url: "/user",
+                    dataType: "json",
+                    data: data,
+                    success: (response) => {
+                        let list = response['list'];
+                        for (var count = 0; count < list.length; count++) {
+                            dic[list[count]['email']] = list[count]['name'];
+                        }
+                        resolve(dic); // 2.
+                    },
+                    error: (e) => {
+                        reject(e); // 3.
+                    }
+                });
+            });
+        }
 
         function assetUpdate() {
             let asset = $('#asset').val()
@@ -141,7 +157,6 @@
                 dataType: "json",
                 data: data,
                 success: function (response) {
-                    closeLoadingWithMask()
                     if (response.message) {
                         switch (response.message) {
                             case '1':
@@ -153,7 +168,58 @@
                     }
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
-                    closeLoadingWithMask()
+                    alert(xhr.status);
+                    alert(thrownError);
+                }
+            });
+        }
+
+        function makeRow(email, share, asset, principal, calculation) {
+            let result = ""
+            let capital = asset * share
+            result += "<tr>";
+            result += "<td data-label=\"이름\">" + email + "</td>"
+            result += "<td data-label=\"자산\">" + capital.toLocaleString('ko-KR', {
+                maximumFractionDigits: 0
+            }) + "₩</td>"
+            result += "<td data-label=\"원금\">" + principal.toLocaleString('ko-KR', {
+                maximumFractionDigits: 0
+            }) + "₩</td>"
+            result += "<td data-label=\"수익금\">" + (capital - principal).toLocaleString('ko-KR', {
+                maximumFractionDigits: 0
+            }) + "₩</td>"
+            result += "<td data-label=\"수익률\">" + (((capital / principal) - 1) * 100).toFixed(2) + "%</td>"
+            result += "<td data-label=\"미납수수료\">" + ((capital - principal) * 0.15).toLocaleString('ko-KR', {
+                maximumFractionDigits: 0
+            }) + "₩</td>"
+            result += "<td data-label=\"정산완료금\">"
+            result += calculation.toLocaleString('ko-KR', {
+                maximumFractionDigits: 0
+            });
+            result += "₩</td>"
+            result += "<td data-label=\"지분\">" + (share * 100).toFixed(2) + "%</td>"
+            result += "</tr>"
+            return result;
+        }
+
+        function getList(asset, map) {
+            let token = $.cookie('user');
+            let data = {
+                "token": token
+            }
+            jQuery.ajax({
+                type: "GET",
+                url: "share/client",
+                dataType: "json",
+                data: data,
+                success: function (response) {
+                    response['list'].forEach(data => {
+                        $("#rows").append(makeRow(map[data['email']], data['share'], asset, data[
+                            'principal'], data['calculation']))
+                    });
+                    $("#progressTable").show();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
                     alert(xhr.status);
                     alert(thrownError);
                 }
