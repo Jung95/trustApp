@@ -20,15 +20,7 @@ const transaction = async (req, res, next) => {
             date,
             token
         } = req.body;
-
-        const decodedToken = jwt.verify(token, TOKEN_KEY);
-        const {
-            _id
-        } = decodedToken;
-        const user = await User.findOne({
-            _id
-        });
-        if (user['level'] !== '3') {
+        if (await !checkPermission(token,TOKEN_KEY)) {
             res.status(201).json({
                 message: "permission"
             });
@@ -112,14 +104,7 @@ const assetUpdate = async (req, res, next) => { // signUp 하는 로직
             date,
             token
         } = req.body; // POST 메소드로 들어온 요청의 데이터(body) 에서d date 을 destructuring 한다.
-        const decodedToken = jwt.verify(token, TOKEN_KEY);
-        const {
-            _id
-        } = decodedToken;
-        const user = await User.findOne({
-            _id
-        });
-        if (user['level'] !== '3') {
+        if (await !checkPermission(token,TOKEN_KEY)) {
             res.status(201).json({
                 message: "permission"
             });
@@ -168,15 +153,7 @@ const clientShare = async (req, res, next) => {
         const {
             token
         } = req.query;
-
-        const decodedToken = jwt.verify(token, TOKEN_KEY);
-        const {
-            _id
-        } = decodedToken;
-        const user = await User.findOne({
-            _id
-        });
-        if (user['level'] !== '3') {
+        if (await !checkPermission(token,TOKEN_KEY)) {
             res.status(201).json({
                 message: "permission"
             });
@@ -197,21 +174,12 @@ const requestList = async (req, res, next) => {
         const {
             token
         } = req.query;
-        const decodedToken = jwt.verify(token, TOKEN_KEY);
-        const {
-            _id
-        } = decodedToken;
-        const user = await User.findOne({
-            _id
-        });
-        if (user['level'] !== '3') {
-            console.log('hi1')
+        if (await !checkPermission(token,TOKEN_KEY)) {
             res.status(201).json({
                 message: "permission"
             });
             return null;
         } else {
-            console.log('hi2')
             const list = await Request.find({}).sort("-date");
             res.status(201).json({
                 list
@@ -220,6 +188,22 @@ const requestList = async (req, res, next) => {
     } catch (err) {}
 }
 
+const checkPermission = async (token, TOKEN_KEY) => {
+    try {
+        const decodedToken = jwt.verify(token, TOKEN_KEY);
+        const {
+            _id
+        } = decodedToken;
+        const user = await User.findOne({
+            _id
+        });
+        if (user['level'] == '3') {
+            return true;
+        } else {
+            return false
+        }
+    } catch (err) {}
+}
 
 module.exports = {
     assetUpdate,
