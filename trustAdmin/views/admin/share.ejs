@@ -107,17 +107,18 @@
   <!-- Icons below are for demo only. Feel free to use any icon pack. Docs: https://bulma.io/documentation/elements/icon/ -->
   <link rel="stylesheet" href="https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css">
   <script>
-    var userMap = {};
+    
     $("#datepicker").datepicker({
       dateFormat: 'yy-mm-dd'
     });
     $("document").ready(async function () {
+      let userMap = await mapEmailName();
       let dt = new Date();
       var str = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate();
       $("#datepicker").val(str);
-      await setUserList();
+      await setUserList(userMap);
       $("#progressTable").hide();
-      getList();
+      await getList(userMap);
       setBase();
     })
 
@@ -142,7 +143,7 @@
       });
     }
 
-    function makeRow(email, share) {
+    function makeRow(email, share, userMap) {
       let result = ""
       result += "<tr>";
       result += "<td data-label=\"이메일\">" + userMap[email] + "</td>"
@@ -151,7 +152,7 @@
       return result;
     }
 
-    function getList() {
+    function getList(userMap) {
       let token = $.cookie('user');
       let data = {
         "token": token
@@ -161,10 +162,10 @@
         url: "share/client",
         dataType: "json",
         data: data,
-        success: function (response) {
-          response['list'].forEach(deposit => {
-            $("#rows").append(makeRow(deposit['email'], deposit['share']))
-          });
+        success: async function (response) {
+          for (const deposit of response['list']){
+            $("#rows").append(makeRow(deposit['email'], deposit['share'], userMap))
+          };
           $("#progressTable").show();
         },
         error: function (xhr, ajaxOptions, thrownError) {
@@ -174,18 +175,17 @@
       });
     }
 
-    function setUserList() {
+    function setUserList(userMap) {
       let token = $.cookie('user');
       let data = {
         "token": token,
       }
       jQuery.ajax({
-        
         type: "GET",
         url: "/user",
         dataType: "json",
         data: data,
-        success: function (response) {
+        success: async function (response) {
           $("#clients").empty();
           let list = response['list'];
           for (var count = 0; count < list.length; count++) {
@@ -240,6 +240,32 @@
         }
       });
     }
+
+    const mapEmailName = function () {
+            return new Promise((resolve, reject) => { // 1.
+                let dic = {}
+                let token = $.cookie('user');
+                let data = {
+                    "token": token
+                }
+                jQuery.ajax({
+                    type: "GET",
+                    url: "/user",
+                    dataType: "json",
+                    data: data,
+                    success: (response) => {
+                        let list = response['list'];
+                        for (var count = 0; count < list.length; count++) {
+                            dic[list[count]['email']] = list[count]['name'];
+                        }
+                        resolve(dic); // 2.
+                    },
+                    error: (e) => {
+                        reject(e); // 3.
+                    }
+                });
+            });
+        }
   </script>
 </body>
 
