@@ -84,17 +84,11 @@
     <!-- Icons below are for demo only. Feel free to use any icon pack. Docs: https://bulma.io/documentation/elements/icon/ -->
     <link rel="stylesheet" href="https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css">
     <script>
-        $("#datepicker").datepicker({
-            dateFormat: 'yy-mm-dd'
-        });
         $("document").ready(async function () {
-            let dt = new Date();
-            var str = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate();
-            $("#datepicker").val(str)
-            let map = await mapEmailName();
-            let asset = await getUsedAsset();
-            asset = asset['asset']['asset']
-            getList(asset,map);
+            const map = await mapEmailName();
+            const assetRaw = await getUsedAsset();
+            const asset = assetRaw['asset']['asset']
+            getList(asset, map);
         })
         const getUsedAsset = function () {
             return new Promise((resolve, reject) => { // 1.
@@ -143,17 +137,18 @@
             });
         }
 
-        function assetUpdate() {
-            let asset = $('#asset').val()
-            let date = $('#datepicker').val()
+        function feeCollection(email) {
+            let token = $.cookie('user');
+            let dt = new Date();
+            let date = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate();
             let data = {
-                "asset": asset,
-                "date": date
+                "email": email,
+                "date": date,
+                "token": token
             }
-            LoadingWithMask()
             jQuery.ajax({
                 type: "POST",
-                url: "asset",
+                url: "/admin/fee",
                 dataType: "json",
                 data: data,
                 success: function (response) {
@@ -174,11 +169,11 @@
             });
         }
 
-        function makeRow(email, share, asset, principal, calculation) {
+        function makeRow(name, share, asset, principal, calculation, email) {
             let result = ""
             let capital = asset * share
             result += "<tr>";
-            result += "<td data-label=\"이름\">" + email + "</td>"
+            result += "<td data-label=\"이름\">" + name + "</td>"
             result += "<td data-label=\"자산\">" + capital.toLocaleString('ko-KR', {
                 maximumFractionDigits: 0
             }) + "₩</td>"
@@ -198,6 +193,15 @@
             });
             result += "₩</td>"
             result += "<td data-label=\"지분\">" + (share * 100).toFixed(2) + "%</td>"
+            result += "<td data-label=\"작업\" class=\"actions-cell\">"
+            result += "<div class=\"buttons right nowrap\">"
+            result +=
+                "<button class=\"button small green --jb-modal\" data-target=\"sample-modal\" onClick=\"feeCollection('" +
+                email + "')\" type=\"button\">"
+            result += "<span class=\"icon\"><i class=\"mdi mdi-trash-can\"></i></span>"
+            result += "</button>"
+            result += "</div>"
+            result += "</td>"
             result += "</tr>"
             return result;
         }
@@ -215,7 +219,7 @@
                 success: function (response) {
                     response['list'].forEach(data => {
                         $("#rows").append(makeRow(map[data['email']], data['share'], asset, data[
-                            'principal'], data['calculation']))
+                            'principal'], data['calculation'], data['email']))
                     });
                     $("#progressTable").show();
                 },

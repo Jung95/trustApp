@@ -14,15 +14,19 @@ var adminRouter = require('./routes/admin');
 var userRouter = require('./routes/user');
 var assetRouter = require('./routes/asset');
 var app = express();
-
-const { MONGODB_PW, TOKEN_KEY } = process.env;
-
+var DB = "";
+const { MONGODB_PW, TOKEN_KEY, npm_config_db} = process.env;
+if(npm_config_db == "dev"){
+  DB = "devTrustAPP"
+}else{
+  DB = "trustAPP"
+}
 // CONNECT TO MONGODB SERVER
-const uri = "mongodb+srv://root:"+MONGODB_PW+"@cluster0.7a0ac.mongodb.net/trustAPP?retryWrites=true&w=majority";
-
+const uri = "mongodb+srv://root:"+MONGODB_PW+"@cluster0.7a0ac.mongodb.net/"+DB+"?retryWrites=true&w=majority";
+console.log()
 mongoose
-  .connect(uri,{ dbName:'trustAPP', useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('Successfully connected to mongodb'))
+  .connect(uri,{ dbName: DB, useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Successfully connected to '+ uri))
   .catch(e => console.error(e));
 
 // view engine setup

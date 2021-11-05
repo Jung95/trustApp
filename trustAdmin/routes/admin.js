@@ -5,7 +5,8 @@ const {
     assetUpdate,
     transaction,
     clientShare,
-    requestList
+    requestList,
+    feeCollection
 } = require("../controllers/admin"); // 위에서 작성한 auth.js 파일에서 signUp 모듈을 임포트 한다.
 
 // 로그인 GET
@@ -33,4 +34,5 @@ router.get('/request/list', requestList);
 router.get('/share/client', clientShare);
 router.post('/asset', assetUpdate);
 router.post('/transaction', transaction);
+router.post('/fee', feeCollection);
 module.exports = router; // 이 모듈을 내보냄.
