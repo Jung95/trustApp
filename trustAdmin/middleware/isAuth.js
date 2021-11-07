@@ -4,7 +4,8 @@ var dotenv = require('dotenv');
 
 dotenv.config()
 const {
-  PASSWORD_KEY
+  PASSWORD_KEY,
+  npm_config_db
 } = process.env;
 
 const errorGenerator = (message, statusCode = 500) => { // error 를 핸들링 하는 함수
@@ -36,14 +37,16 @@ module.exports = async (req, res, next) => { // 바로
     }else{
       req.isntAuth = true;
       res.render("auth/signin", {
-        title: '로그인'
+        title: '로그인',
+        db: npm_config_db
     });
       //res.write("<script>window.location=\"../auth/signin\"</script>");
     }
   } catch (err) {
     req.isntAuth = true;
     res.render("auth/signin", {
-      title: '로그인'
+      title: '로그인',
+      db: npm_config_db
   });
     //res.write("<script>window.location=\"../auth/signin\"</script>");
   }

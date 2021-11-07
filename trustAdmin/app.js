@@ -23,10 +23,10 @@ if(npm_config_db == "dev"){
 }
 // CONNECT TO MONGODB SERVER
 const uri = "mongodb+srv://root:"+MONGODB_PW+"@cluster0.7a0ac.mongodb.net/"+DB+"?retryWrites=true&w=majority";
-console.log()
+
 mongoose
   .connect(uri,{ dbName: DB, useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('Successfully connected to '+ uri))
+  .then(() => console.log('Successfully connected to '+ DB))
   .catch(e => console.error(e));
 
 // view engine setup

@@ -1,5 +1,10 @@
 var express = require("express"); // express 는 서버 개발을 위한 경량화된 프레임워크다.
 const isAuth  = require("../middleware/isAuth");
+var dotenv = require('dotenv');
+dotenv.config()
+const {
+    npm_config_db
+} = process.env;
 var router = express.Router(); // express 프레임워크의 router 함수를 사용해서 위에서 말한 라우팅을 할 수 있다.
 const {
     assetUpdate,
@@ -12,22 +17,22 @@ const {
 // 로그인 GET
 router.get('/asset',isAuth, function (req, res, next) {
     res.render("admin/asset", {
-        title: '자산기입', name:req.user.name, level: req.user.level, page: "asset"
+        title: '자산기입', name:req.user.name, level: req.user.level, page: "asset", db: npm_config_db
     });
 });
 router.get('/share',isAuth, function (req, res, next) {
     res.render("admin/share", {
-        title: '지분관리', name:req.user.name, level: req.user.level, page: "share"
+        title: '지분관리', name:req.user.name, level: req.user.level, page: "share", db: npm_config_db
     });
 });
 router.get('/client',isAuth, function (req, res, next) {
     res.render("admin/client", {
-        title: '회원관리', name:req.user.name, level: req.user.level, page: "client"
+        title: '회원관리', name:req.user.name, level: req.user.level, page: "client", db: npm_config_db
     });
 });
 router.get('/request',isAuth, function (req, res, next) {
     res.render("admin/request", {
-        title: '요청관리', name:req.user.name, level: req.user.level, page: "request"
+        title: '요청관리', name:req.user.name, level: req.user.level, page: "request", db: npm_config_db
     });
 });
 router.get('/request/list', requestList);

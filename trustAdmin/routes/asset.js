@@ -3,7 +3,8 @@ var dotenv = require('dotenv');
 dotenv.config()
 const {
     BANK,
-    KLAYTN
+    KLAYTN,
+    npm_config_db
 } = process.env;
 const isAuth  = require("../middleware/isAuth");
 const {
@@ -25,24 +26,24 @@ var router = express.Router(); // express 프레임워크의 router 함수를 �
 
 router.get('/deposit',isAuth, function (req, res, next) {
     res.render("asset/deposit", {
-        title: '입금신청', name:req.user.name, level: req.user.level, page: "deposit", bank:BANK, klaytn:KLAYTN
+        title: '입금신청', name:req.user.name, level: req.user.level, page: "deposit", bank:BANK, klaytn:KLAYTN, db: npm_config_db
     });
 });
 
 router.get('/withdraw',isAuth, function (req, res, next) {
     res.render("asset/withdraw", {
-        title: '출금신청', name:req.user.name, level: req.user.level, page: "withdraw"
+        title: '출금신청', name:req.user.name, level: req.user.level, page: "withdraw", db: npm_config_db
     });
 });
 
 router.get('/history',isAuth, function (req, res, next) {
     res.render("asset/history", {
-        title: '자산변동내역', name:req.user.name, level: req.user.level, page: "history"
+        title: '자산변동내역', name:req.user.name, level: req.user.level, page: "history", db: npm_config_db
     });
 });
 router.get('/transaction',isAuth, function (req, res, next) {
     res.render("asset/transaction", {
-        title: '입출금내역', name:req.user.name, level: req.user.level, page: "transaction"
+        title: '입출금내역', name:req.user.name, level: req.user.level, page: "transaction", db: npm_config_db
     });
 });
 
