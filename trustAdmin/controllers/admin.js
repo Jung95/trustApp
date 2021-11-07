@@ -203,6 +203,15 @@ const feeCollection = async (req, res, next) => {
             });
             return null;
         }
+        const user = await User.findOne({
+            "email": email,
+        });
+        if(user['level'] == '3'){
+            res.status(201).json({
+                message: "adminAccount"
+            });
+            return null;
+        }
         //get asset
         const asset = await Asset.findOne({
             "isUsed": true
@@ -215,6 +224,12 @@ const feeCollection = async (req, res, next) => {
         //calc fee
         const userCapital = asset['asset'] * share['share'];
         const fee = Number(((userCapital - share['calculation']) * 0.15).toFixed(0))
+        if(fee <= 0){
+            res.status(201).json({
+                message: "leq 0"
+            });
+            return null;
+        }
         //make Transaction
         const sendTransaction = new Transaction({
             value: fee * -1,
@@ -231,8 +246,8 @@ const feeCollection = async (req, res, next) => {
             type: "feeIn"
         });
         //save transaction
-        //sendTransaction.save();
-        //receiveTransaction.save();
+        await sendTransaction.save();
+        await receiveTransaction.save();
 
         // make share row for never used user
         const userList = await User.find().select("email");
@@ -265,7 +280,7 @@ const feeCollection = async (req, res, next) => {
                 feeShare = share - ((share * fBase) / (-fee + fBase) + (-fee / (-fee + fBase)));
                 share = (share * fBase) / (-fee + fBase) + (-fee / (-fee + fBase));
                 principal = principal;
-                calculation = (Number(calculation) + Number(fee));
+                calculation = (fBase*share);
                 let sendShare = new Share({
                     email: data['email'],
                     calculation: calculation,
@@ -274,8 +289,7 @@ const feeCollection = async (req, res, next) => {
                     date: date
 
                 })
-                //await sendShare.save();
-                /*
+                await sendShare.save();
                 await Share.updateOne({
                     "_id": data['_id']
                 }, {
@@ -283,7 +297,6 @@ const feeCollection = async (req, res, next) => {
                         "last": false
                     }
                 })
-                */
                 console.log(sendShare)
             }
         }
@@ -302,8 +315,7 @@ const feeCollection = async (req, res, next) => {
                     date: date
 
                 })
-                //await receiveShare.save();
-                /*
+                await receiveShare.save();
                 await Share.updateOne({
                     "_id": data['_id']
                 }, {
@@ -311,7 +323,6 @@ const feeCollection = async (req, res, next) => {
                         "last": false
                     }
                 })
-                */
                 console.log(receiveShare)
             }
         }
@@ -320,16 +331,18 @@ const feeCollection = async (req, res, next) => {
             value: fee,
             date: date,
             email: email,
+            progress: 4,
             type: 'feeOut'
         });
         const receiveRequest = new Request({
             value: fee,
             date: date,
             email: master,
+            progress: 4,
             type: 'feeIn'
         });
-        //sendRequest.save();
-        //receiveRequest.save();
+        await sendRequest.save();
+        await receiveRequest.save();
 
         res.status(201).json({
             message: "1"

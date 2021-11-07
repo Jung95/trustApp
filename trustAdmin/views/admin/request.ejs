@@ -83,6 +83,12 @@
                     break;
                 case "withdraw":
                     korType = "출금"
+                case "feeIn":
+                    korType = "수수료입금"
+                    break;
+                case "feeOut":
+                    korType = "수수료출금"
+                    break;
                     break;
             }
             let textProgress;
@@ -117,17 +123,17 @@
             result += "<td data-label=\"계좌번호\">" + account + "</td>"
             result += "<td data-label=\"진행상황\">" + textProgress + "</td>"
             result += "<td data-label=\"변경\" class=\"actions-cell\">"
-            if (progress == 0) {
 
-                result += "<div class=\"buttons right nowrap\">"
-                result +=
-                    "<button class=\"button small red --jb-modal\" data-target=\"sample-modal\" onClick=\"deleteRequest('" +
-                    id + "')\" type=\"button\">"
-                result += "<span class=\"icon\"><i class=\"mdi mdi-trash-can\"></i></span>"
-                result += "</button>"
-                result += "</div>"
 
-            }
+            result += "<div class=\"buttons right nowrap\">"
+            result +=
+                "<button class=\"button small red --jb-modal\" data-target=\"sample-modal\" onClick=\"deleteRequest('" +
+                id + "')\" type=\"button\">"
+            result += "<span class=\"icon\"><i class=\"mdi mdi-trash-can\"></i></span>"
+            result += "</button>"
+            result += "</div>"
+
+
             result += "</td>"
             result += "</tr>"
             return result;
@@ -138,7 +144,7 @@
             let data = {
                 "token": token
             }
-            
+
             jQuery.ajax({
                 type: "GET",
                 url: "/admin/request/list",
@@ -147,10 +153,11 @@
                 success: async function (response) {
                     let map = await mapEmailName();
                     response['list'].forEach(deposit => {
-                        $("#rows").append(makeRow(deposit['value'], map[deposit['email']], deposit[
-                            'date'], deposit[
-                            'progress'], deposit['_id'], deposit['bank'], deposit[
-                            'account'], deposit['type']))
+                        $("#rows").append(makeRow(deposit['value'], map[deposit['email']],
+                            deposit[
+                                'date'], deposit[
+                                'progress'], deposit['_id'], deposit['bank'], deposit[
+                                'account'], deposit['type']))
                     });
                     $("#progressTable").show();
                 },
@@ -200,6 +207,36 @@
             });
         }
 
+        function deleteRequest(requestId) {
+            let token = $.cookie('user');
+            let data = {
+                "requestId": requestId,
+                "token": token,
+            }
+            jQuery.ajax({
+                type: "DELETE",
+                url: "/asset/request",
+                dataType: "json",
+                data: data,
+                success: function (response) {
+                    if (response.message) {
+                        switch (response.message) {
+                            case '1':
+                                alert('삭제완료')
+                                break;
+                            default:
+                                console.log(`Sorry, we are out of ${response.message}.`);
+                        }
+                    }
+                    $("#rows").empty();
+                    getList();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(xhr.status);
+                    alert(thrownError);
+                }
+            });
+        }
         const mapEmailName = function () {
             return new Promise((resolve, reject) => { // 1.
                 let dic = {}
@@ -225,7 +262,6 @@
                 });
             });
         }
-
     </script>
 </body>
 

@@ -23,11 +23,18 @@ const deleteRequest = async (req, res, next) => {
         const user = await User.findOne({
             _id
         });
-        const del = await Request.deleteOne({
-            "_id": requestId,
-            "email": user['email'],
-            "progress": 0
-        });
+        if(user['level']== '3'){
+            await Request.deleteOne({
+                "_id": requestId
+            });
+        }else{
+            await Request.deleteOne({
+                "_id": requestId,
+                "email": user['email'],
+                "progress": 0
+            });
+        }
+
 
         res.status(201).json({
             message: "1"
