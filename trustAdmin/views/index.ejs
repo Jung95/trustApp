@@ -179,9 +179,7 @@
       asset = asset['asset']['asset'];
       let profit = (asset * share['share'] - share['principal'])
       let rate = ((profit / share['principal']) * 100).toLocaleString('ko-KR')
-      let fee = ((asset * share['share']- share['calculation']) * 0.15).toLocaleString('ko-KR', {
-        maximumFractionDigits: 0
-      })
+      let fee = ((asset * share['share']- share['calculation']) * 0.15)
       if(fee < 0){
         fee = 0;
       }
@@ -192,7 +190,9 @@
         maximumFractionDigits: 0
       }) + "₩")
       $("#rate").text(rate + "%")
-      $("#fee").text(fee + "₩")
+      $("#fee").text(fee.toLocaleString('ko-KR', {
+        maximumFractionDigits: 0
+      })+ "₩")
       $("#principal").text(principal + "₩")
       $("#total").text((asset * share['share']).toLocaleString('ko-KR', {
         maximumFractionDigits: 0
