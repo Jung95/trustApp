@@ -182,6 +182,9 @@
       let fee = ((asset * share['share']- share['calculation']) * 0.15).toLocaleString('ko-KR', {
         maximumFractionDigits: 0
       })
+      if(fee < 0){
+        fee = 0;
+      }
       let principal = share['principal'].toLocaleString('ko-KR', {
         maximumFractionDigits: 0
       })
