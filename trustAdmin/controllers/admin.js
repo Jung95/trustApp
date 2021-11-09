@@ -26,6 +26,12 @@ const transaction = async (req, res, next) => {
             });
             return null;
         }
+        if(value <= 0){
+            res.status(201).json({
+                message: "leq 0"
+            });
+            return null;
+        }
         const newTransaction = new Transaction({
             value: value,
             base: base,
