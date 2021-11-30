@@ -5,7 +5,7 @@
  */
 
 var app = require('../app');
-var debug = require('debug')('myapp:server');
+var debug = require('debug')('trustApp:server');
 var http = require('http');
 const fs = require('fs');
 const path = require('path');
