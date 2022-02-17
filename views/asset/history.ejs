@@ -86,6 +86,7 @@
         };
         function makeRow(date, share, capital, principal, calculation) {
             let result = ""
+            let fee = (capital - calculation) * 0.15
             result += "<tr>";
             result += "<td data-label=\"일자\">" + date + "</td>"
             result += "<td data-label=\"자산\">" + capital.toLocaleString('ko-KR', {
@@ -98,7 +99,10 @@
                 maximumFractionDigits: 0
             }) + "₩</td>"
             result += "<td data-label=\"수익률\">" + (((capital / principal) - 1) * 100).toFixed(2) + "%</td>"
-            result += "<td data-label=\"미납수수료\">" + ((capital - principal) * 0.15).toLocaleString('ko-KR', {
+            if(fee<0){
+                fee = 0;
+            }
+            result += "<td data-label=\"미납수수료\">" + (fee).toLocaleString('ko-KR', {
                 maximumFractionDigits: 0
             }) + "₩</td>"
             result += "<td data-label=\"정산완료금\">"

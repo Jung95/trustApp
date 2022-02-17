@@ -172,6 +172,7 @@
         function makeRow(name, share, asset, principal, calculation, email, level) {
             let result = ""
             let capital = asset * share
+            let fee = ((capital - calculation) * 0.15)
             result += "<tr>";
             result += "<td data-label=\"이름\">" + name + "</td>"
             result += "<td data-label=\"자산\">" + capital.toLocaleString('ko-KR', {
@@ -184,7 +185,10 @@
                 maximumFractionDigits: 0
             }) + "₩</td>"
             result += "<td data-label=\"수익률\">" + (((capital / principal) - 1) * 100).toFixed(2) + "%</td>"
-            result += "<td data-label=\"미납수수료\">" + ((capital - calculation) * 0.15).toLocaleString('ko-KR', {
+            if(fee<0){
+                fee = 0
+            }
+            result += "<td data-label=\"미납수수료\">" + (fee).toLocaleString('ko-KR', {
                 maximumFractionDigits: 0
             }) + "₩</td>"
             result += "<td data-label=\"정산완료금\">"
@@ -198,7 +202,7 @@
             result +=
                 "<button class=\"button small green --jb-modal\" data-target=\"sample-modal\" onClick=\"feeCollection('" +
                 email + "')\" type=\"button\">"
-            result += "<span class=\"icon\"><i class=\"mdi mdi-trash-can\"></i></span>"
+            result += "<span class=\"icon\"><i class=\"mdi mdi-cash\"></i></span>"
             result += "</button>"
             result += "</div>"
             result += "</td>"

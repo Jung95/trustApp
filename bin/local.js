@@ -5,7 +5,7 @@
  */
 
 var app = require('../app');
-var debug = require('debug')('myapp:server');
+var debug = require('debug')('trustApp:server');
 var http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -16,25 +16,22 @@ var domain = 'jcryptotrust.com';
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '80');
+var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(function (req, res) {
-  res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
-  res.end();
-});
+var server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
 
 server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+//server.on('error', onError);
+//server.on('listening', onListening);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -95,14 +92,4 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
-
-const options = {
-  ca: fs.readFileSync('/etc/letsencrypt/live/jcryptotrust.com/fullchain.pem'),
-  key: fs.readFileSync('/etc/letsencrypt/live/jcryptotrust.com/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/jcryptotrust.com/cert.pem')
-};
-// Create an HTTPS service identical to the HTTP service.
-https.createServer(options, app).listen(443);
-
-
 
