@@ -107,7 +107,6 @@
   <!-- Icons below are for demo only. Feel free to use any icon pack. Docs: https://bulma.io/documentation/elements/icon/ -->
   <link rel="stylesheet" href="https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css">
   <script>
-    
     $("#datepicker").datepicker({
       dateFormat: 'yy-mm-dd'
     });
@@ -131,9 +130,9 @@
         type: "GET",
         url: "/asset/used",
         dataType: "json",
-        data:data,
+        data: data,
         success: function (res) {
-          if(res['asset']){
+          if (res['asset']) {
             $("#base").val(res['asset']['asset'])
           }
         },
@@ -163,7 +162,7 @@
         dataType: "json",
         data: data,
         success: async function (response) {
-          for (const deposit of response['list']){
+          for (const deposit of response['list']) {
             $("#rows").append(makeRow(deposit['email'], deposit['share'], userMap))
           };
           $("#progressTable").show();
@@ -219,7 +218,7 @@
         url: "transaction",
         dataType: "json",
         data: data,
-        success: function (response) {
+        success: async function (response) {
           closeLoadingWithMask()
           if (response.message) {
             switch (response.message) {
@@ -231,7 +230,8 @@
             }
           }
           $("#rows").empty();
-          getList();
+          let userMap = await mapEmailName();
+          getList(userMap);
         },
         error: function (xhr, ajaxOptions, thrownError) {
           closeLoadingWithMask()
@@ -242,30 +242,30 @@
     }
 
     const mapEmailName = function () {
-            return new Promise((resolve, reject) => { // 1.
-                let dic = {}
-                let token = $.cookie('user');
-                let data = {
-                    "token": token
-                }
-                jQuery.ajax({
-                    type: "GET",
-                    url: "/user",
-                    dataType: "json",
-                    data: data,
-                    success: (response) => {
-                        let list = response['list'];
-                        for (var count = 0; count < list.length; count++) {
-                            dic[list[count]['email']] = list[count]['name'];
-                        }
-                        resolve(dic); // 2.
-                    },
-                    error: (e) => {
-                        reject(e); // 3.
-                    }
-                });
-            });
+      return new Promise((resolve, reject) => { // 1.
+        let dic = {}
+        let token = $.cookie('user');
+        let data = {
+          "token": token
         }
+        jQuery.ajax({
+          type: "GET",
+          url: "/user",
+          dataType: "json",
+          data: data,
+          success: (response) => {
+            let list = response['list'];
+            for (var count = 0; count < list.length; count++) {
+              dic[list[count]['email']] = list[count]['name'];
+            }
+            resolve(dic); // 2.
+          },
+          error: (e) => {
+            reject(e); // 3.
+          }
+        });
+      });
+    }
   </script>
 </body>
 

@@ -26,12 +26,14 @@ const transaction = async (req, res, next) => {
             });
             return null;
         }
+        /*
         if(value <= 0){
             res.status(201).json({
                 message: "leq 0"
             });
             return null;
         }
+        */
         const newTransaction = new Transaction({
             value: value,
             base: base,
@@ -212,7 +214,7 @@ const feeCollection = async (req, res, next) => {
         const user = await User.findOne({
             "email": email,
         });
-        if(user['level'] == '3'){
+        if (user['level'] == '3') {
             res.status(201).json({
                 message: "adminAccount"
             });
@@ -230,7 +232,7 @@ const feeCollection = async (req, res, next) => {
         //calc fee
         const userCapital = asset['asset'] * share['share'];
         const fee = Number(((userCapital - share['calculation']) * 0.15).toFixed(0))
-        if(fee <= 0){
+        if (fee <= 0) {
             res.status(201).json({
                 message: "leq 0"
             });
@@ -286,7 +288,7 @@ const feeCollection = async (req, res, next) => {
                 feeShare = share - ((share * fBase) / (-fee + fBase) + (-fee / (-fee + fBase)));
                 share = (share * fBase) / (-fee + fBase) + (-fee / (-fee + fBase));
                 principal = principal;
-                calculation = (fBase*share);
+                calculation = (fBase * share);
                 let sendShare = new Share({
                     email: data['email'],
                     calculation: calculation,
