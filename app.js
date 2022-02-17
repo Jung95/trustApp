@@ -15,18 +15,27 @@ var userRouter = require('./routes/user');
 var assetRouter = require('./routes/asset');
 var app = express();
 var DB = "";
-const { MONGODB_PW, TOKEN_KEY, npm_config_db} = process.env;
-if(npm_config_db == "dev"){
+const {
+  MONGODB_PW,
+  TOKEN_KEY,
+  npm_config_db
+} = process.env;
+//npm run local --db=dev
+if (npm_config_db == "dev") {
   DB = "devTrustAPP"
-}else{
+} else {
   DB = "trustAPP"
 }
 // CONNECT TO MONGODB SERVER
-const uri = "mongodb+srv://root:"+MONGODB_PW+"@cluster0.7a0ac.mongodb.net/"+DB+"?retryWrites=true&w=majority";
+const uri = "mongodb+srv://root:" + MONGODB_PW + "@cluster0.7a0ac.mongodb.net/" + DB + "?retryWrites=true&w=majority";
 
 mongoose
-  .connect(uri,{ dbName: DB, useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('Successfully connected to '+ DB))
+  .connect(uri, {
+    dbName: DB,
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => console.log('Successfully connected to ' + DB))
   .catch(e => console.error(e));
 
 // view engine setup
@@ -35,7 +44,9 @@ app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({
+  extended: false
+}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -46,12 +57,12 @@ app.use('/user', userRouter);
 app.use('/asset', assetRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   //res.locals.error = req.app.get('env') === 'development' ? err : {};
