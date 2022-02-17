@@ -92,6 +92,21 @@
             </div>
           </div>
         </div>
+        <div class="card">
+          <div class="card-content">
+            <div class="flex items-center justify-between">
+              <div class="widget-label">
+                <h3>
+                  총 운용자산
+                </h3>
+                <h1 id="totalCapital">
+                  로딩중
+                </h1>
+              </div>
+              <span class="icon widget-icon text-black-500"><i class="mdi mdi-account-cash mdi-48px"></i></span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="card mb-6">
@@ -179,8 +194,8 @@
       asset = asset['asset']['asset'];
       let profit = (asset * share['share'] - share['principal'])
       let rate = ((profit / share['principal']) * 100).toLocaleString('ko-KR')
-      let fee = ((asset * share['share']- share['calculation']) * 0.15)
-      if(fee < 0){
+      let fee = ((asset * share['share'] - share['calculation']) * 0.15)
+      if (fee < 0) {
         fee = 0;
       }
       let principal = share['principal'].toLocaleString('ko-KR', {
@@ -189,10 +204,13 @@
       $("#profit").text(profit.toLocaleString('ko-KR', {
         maximumFractionDigits: 0
       }) + "₩")
+      $("#totalCapital").text(asset.toLocaleString('ko-KR', {
+        maximumFractionDigits: 0
+      }) + "₩")
       $("#rate").text(rate + "%")
       $("#fee").text(fee.toLocaleString('ko-KR', {
         maximumFractionDigits: 0
-      })+ "₩")
+      }) + "₩")
       $("#principal").text(principal + "₩")
       $("#total").text((asset * share['share']).toLocaleString('ko-KR', {
         maximumFractionDigits: 0
