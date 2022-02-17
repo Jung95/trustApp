@@ -53,6 +53,7 @@
                             </tbody>
                         </table>
                     </div>
+                    <button onclick="pre()">이전</button><button onclick="next()">다음</button>
                 </div>
         </section>
 
@@ -64,6 +65,7 @@
     <!-- Icons below are for demo only. Feel free to use any icon pack. Docs: https://bulma.io/documentation/elements/icon/ -->
     <link rel="stylesheet" href="https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css">
     <script>
+        var page = 1;
         $("#datepicker").datepicker({
             dateFormat: 'yy-mm-dd'
         });
@@ -72,9 +74,16 @@
             var str = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate();
             $("#datepicker").val(str)
             //$("#progressTable").hide();
-            getList(1);
+            getList(page);
         })
-
+        function pre(){
+            page--;
+            getList(page);
+        };
+        function next(){
+            page++;
+            getList(page);
+        };
         function makeRow(date, share, capital, principal, calculation) {
             let result = ""
             result += "<tr>";
